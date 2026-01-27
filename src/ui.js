@@ -19,6 +19,9 @@ const closeViewBtn = document.getElementById("close-view-btn");
 const externalLinkBtn = document.getElementById("external-link-btn");
 const iframeFallback = document.getElementById("iframe-fallback");
 const fallbackLink = document.getElementById("fallback-link");
+const persistentExternalBtn = document.getElementById(
+  "persistent-external-btn",
+);
 
 // Settings Elements
 const settingsModal = document.getElementById("settings-modal");
@@ -36,6 +39,29 @@ const confirmDeleteBtn = document.getElementById("confirm-delete-btn");
 let currentFolderId = "all";
 let selectedFolderForNewPost = "uncategorized";
 
+// Helper to get embed URL
+function getEmbedUrl(url) {
+  try {
+    const u = new URL(url);
+    // YouTube
+    if (
+      u.hostname === "www.youtube.com" ||
+      u.hostname === "youtube.com" ||
+      u.hostname === "m.youtube.com"
+    ) {
+      const v = u.searchParams.get("v");
+      if (v) return `https://www.youtube.com/embed/${v}`;
+    }
+    if (u.hostname === "youtu.be") {
+      const v = u.pathname.slice(1);
+      if (v) return `https://www.youtube.com/embed/${v}`;
+    }
+    return url;
+  } catch (e) {
+    return url;
+  }
+}
+
 export const ui = {
   // State
   isSelectionMode: false,
@@ -47,6 +73,67 @@ export const ui = {
     this.renderPosts();
     this.setupEventListeners();
     this.setupSettingsListener();
+    this.setupInstallPrompt();
+  },
+
+  setupInstallPrompt() {
+    const installModal = document.getElementById("install-modal");
+    const installBtn = document.getElementById("install-accept-btn");
+    const dismissBtn = document.getElementById("install-dismiss-btn");
+    const backdrop = document.getElementById("install-modal-backdrop");
+
+    // Settings Elements
+    const settingsInstallRow = document.getElementById("settings-install-row");
+    const settingsInstallBtn = document.getElementById("settings-install-btn");
+
+    let deferredPrompt;
+
+    window.addEventListener("beforeinstallprompt", (e) => {
+      // Prevent the mini-infobar from appearing on mobile
+      e.preventDefault();
+      // Stash the event so it can be triggered later.
+      deferredPrompt = e;
+      // Show the install modal (first time prompt)
+      installModal.classList.remove("hidden");
+
+      // Also show the settings install row
+      if (settingsInstallRow) settingsInstallRow.classList.remove("hidden");
+    });
+
+    const hideModal = () => {
+      installModal.classList.add("hidden");
+    };
+
+    dismissBtn.addEventListener("click", hideModal);
+    backdrop.addEventListener("click", hideModal);
+
+    const triggerInstall = async () => {
+      hideModal();
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        console.log(`User response to the install prompt: ${outcome}`);
+        deferredPrompt = null;
+        // Hide settings row if accepted
+        if (outcome === "accepted" && settingsInstallRow) {
+          settingsInstallRow.classList.add("hidden");
+        }
+      }
+    };
+
+    installBtn.addEventListener("click", triggerInstall);
+
+    // Settings Install Button
+    if (settingsInstallBtn) {
+      settingsInstallBtn.addEventListener("click", triggerInstall);
+    }
+
+    window.addEventListener("appinstalled", () => {
+      hideModal();
+      deferredPrompt = null;
+      if (settingsInstallRow) settingsInstallRow.classList.add("hidden");
+      console.log("PWA was installed");
+    });
   },
 
   setupEventListeners() {
@@ -643,6 +730,7 @@ export const ui = {
     viewModal.classList.remove("hidden");
     viewModalTitle.textContent = post.title;
     externalLinkBtn.href = post.url;
+    if (persistentExternalBtn) persistentExternalBtn.href = post.url;
 
     // Edit Button Logic
     const editBtn = document.getElementById("edit-post-btn");
@@ -660,7 +748,8 @@ export const ui = {
     viewFrame.classList.remove("hidden");
 
     try {
-      viewFrame.src = post.url;
+      const embedUrl = getEmbedUrl(post.url);
+      viewFrame.src = embedUrl;
 
       // Simple fallback check (onload doesn't reliable detect X-Frame-Options blocking, but can detect connection errors sometimes)
       // For accurate X-Frame-Options detection we'd need a server proxy or just accept standard behavior.
