@@ -1,0 +1,196 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --glass-border: rgba(255, 255, 255, 0.2);
+  --glass-bg: rgba(255, 255, 255, 0.1);
+  --glass-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+}
+
+body {
+  @apply min-h-screen text-slate-800 font-sans;
+  background-color: #f0f0f0;
+  overscroll-behavior-y: none; /* Prevent overscroll on mobile */
+}
+
+.glass-panel {
+  @apply bg-white/70 backdrop-blur-md border border-white/50 shadow-xl rounded-2xl;
+}
+
+.glass-input {
+  @apply bg-white/30 border border-white/40 placeholder-slate-600/70 text-slate-800 focus:outline-none focus:ring-2 rounded-xl px-4 py-3 w-full transition-all;
+  --tw-ring-color: #fc518580;
+}
+
+.glass-button {
+  @apply text-white font-medium py-2 px-4 rounded-xl shadow-md transition-all active:scale-95 backdrop-blur-sm;
+  background-color: #364f6b;
+}
+
+.glass-button:hover {
+  background-color: #2a3d55;
+}
+
+.chip {
+  @apply px-4 py-2 rounded-full text-sm font-medium transition-all whitespace-nowrap;
+}
+
+.chip-active {
+  background-color: #364f6b;
+  color: white;
+  box-shadow: 0 4px 6px -1px rgba(54, 79, 107, 0.3);
+}
+
+.chip-inactive {
+  background-color: rgba(255, 255, 255, 0.5);
+  color: #364f6b;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+}
+
+.chip-inactive:hover {
+  background-color: rgba(255, 255, 255, 0.8);
+}
+
+.folder-chip {
+  @apply px-3 py-1.5 rounded-lg border text-xs font-medium transition-all whitespace-nowrap;
+}
+
+.folder-chip-active {
+  background-color: #364f6b;
+  color: white;
+  border-color: transparent;
+}
+
+.folder-chip-inactive {
+  background-color: rgba(255, 255, 255, 0.5);
+  color: #555;
+  border-color: transparent;
+}
+
+.glass-button-accent {
+  @apply text-white font-medium py-2 px-4 rounded-xl shadow-md transition-all active:scale-95 backdrop-blur-sm;
+  background-color: #fc5185cc;
+}
+
+.glass-button-accent:hover {
+  background-color: #fc5185;
+}
+
+/* Hide scrollbar for clean look but allow scroll */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+@keyframes pop-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-pop-in {
+  animation: pop-in 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+
+/* Swipe Actions */
+.post-item-container {
+  position: relative;
+  overflow: hidden;
+}
+
+.post-content {
+  position: relative;
+  transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+  z-index: 10;
+  background: rgba(255, 255, 255, 0.6);
+  touch-action: pan-y;
+}
+
+.post-delete-bg {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  width: 100%;
+  background-color: #ef4444;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 2rem;
+  color: white;
+  z-index: 1;
+  border-radius: 0.75rem;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.swiping-delete .post-delete-bg {
+    opacity: 1;
+}
+
+.post-edit-bg {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background-color: #364f6b;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding-left: 2rem;
+  color: white;
+  z-index: 1;
+  border-radius: 0.75rem;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.swiping-edit .post-edit-bg {
+    opacity: 1;
+}
+
+/* Selection Mode */
+.selection-checkbox {
+  width: 1.25rem;
+  height: 1.25rem;
+  border: 2px solid #cbd5e1;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  margin-right: 0.75rem;
+  flex-shrink: 0;
+}
+
+.selected .selection-checkbox {
+  background-color: #364f6b;
+  border-color: #364f6b;
+}
+
+.selection-checkbox svg {
+  width: 0.75rem;
+  height: 0.75rem;
+  color: white;
+  transform: scale(0);
+  transition: transform 0.2s;
+}
+
+.selected .selection-checkbox svg {
+  transform: scale(1);
+}
+
+.selecting .post-content {
+}
+
