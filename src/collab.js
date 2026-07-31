@@ -25,7 +25,10 @@ export const collab = {
 
     // Automatically restore live room connection after browser page refresh
     setTimeout(() => {
-      const savedRoom = sessionStorage.getItem("ideahub_active_room");
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get("room")) return; // Let ui.js handle joining the URL room explicitly
+
+      const savedRoom = localStorage.getItem("ideahub_active_room");
       if (savedRoom && !this.isInRoom) {
         try {
           const { code, isHost } = JSON.parse(savedRoom);
@@ -35,18 +38,18 @@ export const collab = {
                 // If ID is temporarily locked by PeerJS server after refresh, retry after 1000ms
                 setTimeout(() => {
                   this.createRoom(code).catch(() => {
-                    sessionStorage.removeItem("ideahub_active_room");
+                    localStorage.removeItem("ideahub_active_room");
                   });
                 }, 1000);
               });
             } else {
               this.joinRoom(code).catch(() => {
-                sessionStorage.removeItem("ideahub_active_room");
+                localStorage.removeItem("ideahub_active_room");
               });
             }
           }
         } catch (e) {
-          sessionStorage.removeItem("ideahub_active_room");
+          localStorage.removeItem("ideahub_active_room");
         }
       }
     }, 400);
@@ -112,7 +115,7 @@ export const collab = {
           this.isHost = true;
           this.roomCode = code;
           this.connections = [];
-          sessionStorage.setItem(
+          localStorage.setItem(
             "ideahub_active_room",
             JSON.stringify({ code: this.roomCode, isHost: true }),
           );
@@ -207,7 +210,7 @@ export const collab = {
             this.isHost = false;
             this.roomCode = cleanCode;
             this.connections = [conn];
-            sessionStorage.setItem(
+            localStorage.setItem(
               "ideahub_active_room",
               JSON.stringify({ code: this.roomCode, isHost: false }),
             );
@@ -262,6 +265,7 @@ export const collab = {
 
   leaveRoom(userInitiated = false) {
     if (userInitiated) {
+      localStorage.removeItem("ideahub_active_room");
       sessionStorage.removeItem("ideahub_active_room");
     }
 

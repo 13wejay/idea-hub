@@ -545,12 +545,44 @@ export const ui = {
     const urlParams = new URLSearchParams(window.location.search);
     const roomParam = urlParams.get("room");
     if (roomParam) {
-      setTimeout(() => {
-        collab.joinRoom(roomParam).then(() => {
-          this.showToast(`Connected to room ${roomParam.toUpperCase()} 🟢`, "success");
-          window.history.replaceState({}, document.title, window.location.pathname);
-        });
-      }, 500);
+      const tryAutoJoin = (attempts = 0) => {
+        if (!window.Peer) {
+          if (attempts < 40) {
+            setTimeout(() => tryAutoJoin(attempts + 1), 250);
+          } else {
+            this.showToast(
+              "Could not load networking library. Please refresh to join room.",
+              "error",
+            );
+          }
+          return;
+        }
+        this.showToast(
+          `Connecting to room ${roomParam.toUpperCase()}...`,
+          "default",
+        );
+        collab
+          .joinRoom(roomParam)
+          .then(() => {
+            this.showToast(
+              `Connected to room ${roomParam.toUpperCase()} 🟢`,
+              "success",
+            );
+            window.history.replaceState(
+              {},
+              document.title,
+              window.location.pathname,
+            );
+          })
+          .catch((err) => {
+            console.error("Failed to join room from URL:", err);
+            this.showToast(
+              `Could not join room ${roomParam.toUpperCase()}. Ensure host is online.`,
+              "error",
+            );
+          });
+      };
+      setTimeout(() => tryAutoJoin(0), 150);
     }
 
     // Check for shared board #share=... on startup
