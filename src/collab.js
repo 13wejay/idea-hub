@@ -159,10 +159,17 @@ export const collab = {
 
       conn.on("data", (data) => {
         if (data && data.type === "SYNC_STATE") {
-          // Merge external state into local store without re-emitting broadcast
-          store.importData({ posts: data.posts, folders: data.folders }, true, false);
+          // Replace local state with external state without re-emitting broadcast
+          store.importData(
+            { posts: data.posts, folders: data.folders },
+            false,
+            false,
+          );
           // Broadcast to any other connected peers
-          this.broadcastState({ posts: store.posts, folders: store.folders }, conn);
+          this.broadcastState(
+            { posts: store.posts, folders: store.folders },
+            conn,
+          );
         }
       });
 
@@ -219,8 +226,15 @@ export const collab = {
           });
 
           conn.on("data", (data) => {
-            if (data && (data.type === "INIT_STATE" || data.type === "SYNC_STATE")) {
-              store.importData({ posts: data.posts, folders: data.folders }, true, false);
+            if (
+              data &&
+              (data.type === "INIT_STATE" || data.type === "SYNC_STATE")
+            ) {
+              store.importData(
+                { posts: data.posts, folders: data.folders },
+                false,
+                false,
+              );
             }
           });
 

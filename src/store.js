@@ -291,41 +291,58 @@ export const store = {
   importData(data, merge = true, emitSync = false) {
     if (!data || !Array.isArray(data.posts)) return false;
 
-    let foldersChanged = false;
-    // Merge folders
-    if (Array.isArray(data.folders)) {
-      data.folders.forEach((newF) => {
-        if (!this.folders.some((f) => f.id === newF.id)) {
-          this.folders.push(newF);
-          foldersChanged = true;
-        }
-      });
+    // Fast equality check: if identical data, skip work!
+    const newPostsStr = JSON.stringify(data.posts);
+    const currentPostsStr = JSON.stringify(this.posts);
+    const newFoldersStr = JSON.stringify(data.folders || this.folders);
+    const currentFoldersStr = JSON.stringify(this.folders);
+
+    if (
+      newPostsStr === currentPostsStr &&
+      newFoldersStr === currentFoldersStr
+    ) {
+      return 0;
     }
 
     if (!merge) {
-      this.posts = [];
-    }
+      if (Array.isArray(data.folders) && data.folders.length > 0) {
+        this.folders = [...data.folders];
+      }
+      this.posts = data.posts.map((newP) => ({
+        ...newP,
+        type: newP.type || (newP.url ? "link" : "note"),
+        note: newP.note || "",
+        tags: Array.isArray(newP.tags) ? newP.tags : [],
+        isPinned: Boolean(newP.isPinned),
+        color: newP.color || "default",
+      }));
+    } else {
+      // Merge folders
+      if (Array.isArray(data.folders)) {
+        data.folders.forEach((newF) => {
+          if (!this.folders.some((f) => f.id === newF.id)) {
+            this.folders.push(newF);
+          }
+        });
+      }
 
-    // Merge or add posts
-    let addedCount = 0;
-    data.posts.forEach((newP) => {
-      const exists = this.posts.some((p) => p.id === newP.id);
-      if (!exists || !merge) {
-        this.posts.push({
+      // Merge or add posts (also updating existing post if ID matches!)
+      data.posts.forEach((newP) => {
+        const existingIdx = this.posts.findIndex((p) => p.id === newP.id);
+        const cleanPost = {
           ...newP,
           type: newP.type || (newP.url ? "link" : "note"),
           note: newP.note || "",
           tags: Array.isArray(newP.tags) ? newP.tags : [],
           isPinned: Boolean(newP.isPinned),
           color: newP.color || "default",
-        });
-        addedCount++;
-      }
-    });
-
-    // If nothing changed, do not re-save, re-notify, or re-render!
-    if (addedCount === 0 && !foldersChanged && merge) {
-      return 0;
+        };
+        if (existingIdx !== -1) {
+          this.posts[existingIdx] = cleanPost;
+        } else {
+          this.posts.push(cleanPost);
+        }
+      });
     }
 
     // Sort by createdAt descending
