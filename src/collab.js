@@ -18,10 +18,38 @@ export const collab = {
       }
     });
 
-    // Handle window unload to close clean
+    // Handle window unload to close connections cleanly without deleting session storage
     window.addEventListener("beforeunload", () => {
-      this.leaveRoom();
+      this.leaveRoom(false);
     });
+
+    // Automatically restore live room connection after browser page refresh
+    setTimeout(() => {
+      const savedRoom = sessionStorage.getItem("ideahub_active_room");
+      if (savedRoom && !this.isInRoom) {
+        try {
+          const { code, isHost } = JSON.parse(savedRoom);
+          if (code) {
+            if (isHost) {
+              this.createRoom(code).catch(() => {
+                // If ID is temporarily locked by PeerJS server after refresh, retry after 1000ms
+                setTimeout(() => {
+                  this.createRoom(code).catch(() => {
+                    sessionStorage.removeItem("ideahub_active_room");
+                  });
+                }, 1000);
+              });
+            } else {
+              this.joinRoom(code).catch(() => {
+                sessionStorage.removeItem("ideahub_active_room");
+              });
+            }
+          }
+        } catch (e) {
+          sessionStorage.removeItem("ideahub_active_room");
+        }
+      }
+    }, 400);
   },
 
   onStatusChange(fn) {
@@ -84,6 +112,10 @@ export const collab = {
           this.isHost = true;
           this.roomCode = code;
           this.connections = [];
+          sessionStorage.setItem(
+            "ideahub_active_room",
+            JSON.stringify({ code: this.roomCode, isHost: true }),
+          );
           this.notifyStatus();
 
           this.setupHostListeners();
@@ -125,8 +157,7 @@ export const collab = {
       conn.on("data", (data) => {
         if (data && data.type === "SYNC_STATE") {
           // Merge external state into local store without re-emitting broadcast
-          store.importData({ posts: data.posts, folders: data.folders }, true);
-          store.notify(false); // Update UI
+          store.importData({ posts: data.posts, folders: data.folders }, true, false);
           // Broadcast to any other connected peers
           this.broadcastState({ posts: store.posts, folders: store.folders }, conn);
         }
@@ -176,14 +207,17 @@ export const collab = {
             this.isHost = false;
             this.roomCode = cleanCode;
             this.connections = [conn];
+            sessionStorage.setItem(
+              "ideahub_active_room",
+              JSON.stringify({ code: this.roomCode, isHost: false }),
+            );
             this.notifyStatus();
             resolve(cleanCode);
           });
 
           conn.on("data", (data) => {
             if (data && (data.type === "INIT_STATE" || data.type === "SYNC_STATE")) {
-              store.importData({ posts: data.posts, folders: data.folders }, true);
-              store.notify(false); // Update UI
+              store.importData({ posts: data.posts, folders: data.folders }, true, false);
             }
           });
 
@@ -226,7 +260,11 @@ export const collab = {
     });
   },
 
-  leaveRoom() {
+  leaveRoom(userInitiated = false) {
+    if (userInitiated) {
+      sessionStorage.removeItem("ideahub_active_room");
+    }
+
     this.connections.forEach((conn) => {
       try {
         conn.close();

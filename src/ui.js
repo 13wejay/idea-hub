@@ -459,7 +459,7 @@ export const ui = {
     document
       .getElementById("leave-room-btn")
       ?.addEventListener("click", () => {
-        collab.leaveRoom();
+        collab.leaveRoom(true);
         this.showToast("Disconnected from room.", "default");
       });
 

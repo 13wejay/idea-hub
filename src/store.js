@@ -288,14 +288,16 @@ export const store = {
     };
   },
 
-  importData(data, merge = true) {
+  importData(data, merge = true, emitSync = false) {
     if (!data || !Array.isArray(data.posts)) return false;
 
+    let foldersChanged = false;
     // Merge folders
     if (Array.isArray(data.folders)) {
       data.folders.forEach((newF) => {
         if (!this.folders.some((f) => f.id === newF.id)) {
           this.folders.push(newF);
+          foldersChanged = true;
         }
       });
     }
@@ -308,7 +310,7 @@ export const store = {
     let addedCount = 0;
     data.posts.forEach((newP) => {
       const exists = this.posts.some((p) => p.id === newP.id);
-      if (!exists) {
+      if (!exists || !merge) {
         this.posts.push({
           ...newP,
           type: newP.type || (newP.url ? "link" : "note"),
@@ -321,11 +323,24 @@ export const store = {
       }
     });
 
+    // If nothing changed, do not re-save, re-notify, or re-render!
+    if (addedCount === 0 && !foldersChanged && merge) {
+      return 0;
+    }
+
     // Sort by createdAt descending
     this.posts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
-    this.saveFolders(true);
-    this.savePosts(true);
+    localStorage.setItem(STORAGE_KEY_FOLDERS, JSON.stringify(this.folders));
+    localStorage.setItem(STORAGE_KEY_POSTS, JSON.stringify(this.posts));
+
+    if (emitSync && this.broadcastChannel) {
+      try {
+        this.broadcastChannel.postMessage({ type: "SYNC", time: Date.now() });
+      } catch (e) {}
+    }
+
+    this.notify(emitSync);
     return addedCount;
   },
 };
