@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 :root {
-  --font-family: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-family: 'Alan Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
 body {
@@ -13,11 +13,11 @@ body {
 
 /* Glassmorphism & UI components */
 .glass-panel {
-  @apply bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border border-slate-200/60 dark:border-slate-800 shadow-xl rounded-2xl;
+  @apply bg-white/90 backdrop-blur-md border border-slate-200/80 shadow-xl rounded-2xl;
 }
 
 .glass-input {
-  @apply bg-slate-50/80 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 placeholder-slate-400 dark:placeholder-slate-500 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary/50 dark:focus:ring-blue-500/50 rounded-xl px-4 py-3 w-full transition-all text-sm;
+  @apply bg-slate-50/90 border border-slate-200 placeholder-slate-400 text-slate-800 focus:outline-none focus:ring-2 focus:ring-primary/50 rounded-xl px-4 py-3 w-full transition-all text-sm;
 }
 
 .glass-button {
@@ -28,37 +28,41 @@ body {
   @apply text-white font-medium py-2 px-4 rounded-xl shadow-md transition-all active:scale-95 bg-accent hover:bg-rose-600;
 }
 
-/* Category & Filter Chips */
+/* Category & Folder Chips (Folder View) */
 .chip {
-  @apply px-4 py-2 rounded-xl text-sm font-medium transition-all whitespace-nowrap border;
+  @apply px-4 py-2 rounded-xl text-sm font-medium transition-all whitespace-nowrap border flex items-center space-x-1.5 shadow-sm;
 }
 
 .chip-active {
-  @apply bg-primary dark:bg-blue-600 text-white border-transparent shadow-md shadow-primary/20 dark:shadow-blue-600/20;
+  @apply bg-primary text-white border-transparent shadow-md shadow-primary/25;
 }
 
 .chip-inactive {
-  @apply bg-white/80 dark:bg-slate-800/80 text-slate-600 dark:text-slate-300 border-slate-200/80 dark:border-slate-700/80 hover:bg-slate-100 dark:hover:bg-slate-700;
+  @apply bg-white/90 text-slate-600 border-slate-200 hover:bg-slate-100 hover:border-slate-300;
+}
+
+.add-category-chip {
+  @apply px-3.5 py-2 rounded-xl text-xs font-semibold transition-all whitespace-nowrap border border-dashed border-slate-400/80 hover:border-primary text-slate-500 hover:text-primary bg-slate-100/60 hover:bg-white flex items-center space-x-1 cursor-pointer;
 }
 
 .folder-chip {
-  @apply px-3 py-1.5 rounded-lg border text-xs font-medium transition-all whitespace-nowrap cursor-pointer;
+  @apply px-3 py-1.5 rounded-lg border text-xs font-medium transition-all whitespace-nowrap cursor-pointer flex items-center space-x-1;
 }
 
 .folder-chip-active {
-  @apply bg-primary dark:bg-blue-600 text-white border-transparent shadow-sm;
+  @apply bg-primary text-white border-transparent shadow-sm;
 }
 
 .folder-chip-inactive {
-  @apply bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-200 dark:hover:bg-slate-700;
+  @apply bg-slate-100 text-slate-600 border-slate-200 hover:bg-slate-200;
 }
 
 .type-filter-btn.active-type-filter {
-  @apply bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm font-semibold;
+  @apply bg-white text-slate-900 shadow-sm font-semibold;
 }
 
 .type-filter-btn:not(.active-type-filter) {
-  @apply text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200;
+  @apply text-slate-600 hover:text-slate-900;
 }
 
 /* Color swatch selection */
@@ -66,7 +70,7 @@ body {
   @apply transition-transform hover:scale-110 active:scale-95;
 }
 .color-swatch-btn.active-swatch {
-  @apply ring-2 ring-offset-2 ring-primary dark:ring-offset-slate-900 scale-110;
+  @apply ring-2 ring-offset-2 ring-primary scale-110;
 }
 
 /* Hide scrollbar */
@@ -181,15 +185,7 @@ body {
   opacity: 1;
 }
 
-/* Card color border indicators */
-.card-border-default { @apply border-l-4 border-l-slate-400 dark:border-l-slate-600; }
-.card-border-emerald { @apply border-l-4 border-l-emerald-500; }
-.card-border-amber { @apply border-l-4 border-l-amber-500; }
-.card-border-blue { @apply border-l-4 border-l-blue-500; }
-.card-border-rose { @apply border-l-4 border-l-rose-500; }
-.card-border-violet { @apply border-l-4 border-l-violet-500; }
-
 /* List View mode overrides */
 .view-list {
-  @apply flex flex-col space-y-2 !grid-cols-1;
+  @apply !grid !grid-cols-1 gap-3 w-full !items-stretch;
 }

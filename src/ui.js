@@ -51,6 +51,68 @@ function getEmbedUrl(url) {
   }
 }
 
+// Helper to check if a URL can be embedded in an iframe without triggering X-Frame-Options / CSP errors
+function canEmbedUrl(url) {
+  try {
+    const u = new URL(url);
+    const host = u.hostname.toLowerCase();
+
+    // Whitelist: Known embeddable services
+    if (
+      host.includes("youtube.com") ||
+      host === "youtu.be" ||
+      host.includes("player.vimeo.com") ||
+      host.includes("open.spotify.com") ||
+      host.includes("codepen.io") ||
+      host.includes("figma.com") ||
+      host.includes("wikipedia.org")
+    ) {
+      return true;
+    }
+
+    // Blacklist: Sites known to set X-Frame-Options: deny/sameorigin or CSP frame-ancestors
+    const blockedDomains = [
+      "instagram.com",
+      "facebook.com",
+      "twitter.com",
+      "x.com",
+      "linkedin.com",
+      "tiktok.com",
+      "github.com",
+      "reddit.com",
+      "medium.com",
+      "stackoverflow.com",
+      "google.com",
+      "apple.com",
+      "netflix.com",
+      "amazon.com",
+      "pinterest.com",
+      "threads.net",
+      "quora.com",
+      "substack.com",
+      "dribbble.com",
+      "behance.net",
+      "notion.so",
+      "notion.site",
+      "nytimes.com",
+      "wsj.com",
+      "bbc.com",
+      "cnn.com",
+      "discord.com",
+      "slack.com",
+      "twitch.tv",
+    ];
+
+    if (blockedDomains.some((domain) => host.includes(domain))) {
+      return false;
+    }
+
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
 export const ui = {
   // State
   currentFolderId: "all",
@@ -61,17 +123,14 @@ export const ui = {
   activeTag: null,
   sortBy: "newest",
   viewMode: localStorage.getItem("ideahub_view_mode") || "grid",
-  theme: localStorage.getItem("ideahub_theme") || "light",
 
   init() {
-    this.initTheme();
     this.applyViewMode();
     this.renderCategories();
     this.renderPosts();
     this.setupEventListeners();
     this.setupSettingsListener();
     this.setupCollabListeners();
-    this.setupInstallPrompt();
 
     // Re-render when store updates (from tabs, live rooms, or edits)
     store.subscribe(() => {
@@ -80,37 +139,24 @@ export const ui = {
     });
   },
 
-  initTheme() {
-    const html = document.documentElement;
-    if (this.theme === "dark") {
-      html.classList.add("dark");
-    } else {
-      html.classList.remove("dark");
-    }
-  },
-
-  toggleTheme() {
-    this.theme = this.theme === "light" ? "dark" : "light";
-    localStorage.setItem("ideahub_theme", this.theme);
-    this.initTheme();
-    this.showToast(
-      `Switched to ${this.theme === "dark" ? "Dark" : "Light"} Mode 🌙`,
-    );
-  },
-
-  applyViewMode() {
+  applyViewMode(render = false) {
+    const gridBtn = document.getElementById("view-grid-btn");
+    const listBtn = document.getElementById("view-list-btn");
     if (this.viewMode === "list") {
       postList.classList.add("view-list");
-      document.getElementById("view-grid-btn")?.classList.remove("bg-white", "dark:bg-slate-700", "shadow-sm", "text-primary", "dark:text-white");
-      document.getElementById("view-grid-btn")?.classList.add("text-slate-500", "dark:text-slate-400");
-      document.getElementById("view-list-btn")?.classList.add("bg-white", "dark:bg-slate-700", "shadow-sm", "text-primary", "dark:text-white");
-      document.getElementById("view-list-btn")?.classList.remove("text-slate-500", "dark:text-slate-400");
+      gridBtn?.classList.remove("bg-slate-800", "text-white", "font-semibold");
+      gridBtn?.classList.add("text-slate-600", "hover:text-slate-900", "hover:bg-slate-100");
+      listBtn?.classList.add("bg-slate-800", "text-white", "font-semibold");
+      listBtn?.classList.remove("text-slate-600", "hover:text-slate-900", "hover:bg-slate-100");
     } else {
       postList.classList.remove("view-list");
-      document.getElementById("view-list-btn")?.classList.remove("bg-white", "dark:bg-slate-700", "shadow-sm", "text-primary", "dark:text-white");
-      document.getElementById("view-list-btn")?.classList.add("text-slate-500", "dark:text-slate-400");
-      document.getElementById("view-grid-btn")?.classList.add("bg-white", "dark:bg-slate-700", "shadow-sm", "text-primary", "dark:text-white");
-      document.getElementById("view-grid-btn")?.classList.remove("text-slate-500", "dark:text-slate-400");
+      listBtn?.classList.remove("bg-slate-800", "text-white", "font-semibold");
+      listBtn?.classList.add("text-slate-600", "hover:text-slate-900", "hover:bg-slate-100");
+      gridBtn?.classList.add("bg-slate-800", "text-white", "font-semibold");
+      gridBtn?.classList.remove("text-slate-600", "hover:text-slate-900", "hover:bg-slate-100");
+    }
+    if (render && typeof this.renderPosts === "function") {
+      this.renderPosts();
     }
   },
 
@@ -125,7 +171,7 @@ export const ui = {
         ? "bg-red-500/90 text-white"
         : type === "success"
           ? "bg-emerald-500/90 text-white"
-          : "bg-slate-900/90 dark:bg-slate-100/90 text-white dark:text-slate-900");
+          : "bg-slate-900/90 text-white");
 
     el.innerHTML = `<span>${message}</span>`;
     container.appendChild(el);
@@ -139,11 +185,6 @@ export const ui = {
   },
 
   setupEventListeners() {
-    // Theme Toggle
-    document
-      .getElementById("theme-toggle-btn")
-      ?.addEventListener("click", () => this.toggleTheme());
-
     // Search input
     const searchInput = document.getElementById("search-input");
     const searchClear = document.getElementById("search-clear-btn");
@@ -188,12 +229,12 @@ export const ui = {
     document.getElementById("view-grid-btn")?.addEventListener("click", () => {
       this.viewMode = "grid";
       localStorage.setItem("ideahub_view_mode", "grid");
-      this.applyViewMode();
+      this.applyViewMode(true);
     });
     document.getElementById("view-list-btn")?.addEventListener("click", () => {
       this.viewMode = "list";
       localStorage.setItem("ideahub_view_mode", "list");
-      this.applyViewMode();
+      this.applyViewMode(true);
     });
 
     // Tag Clear Button
@@ -220,18 +261,18 @@ export const ui = {
     tabLinkBtn?.addEventListener("click", () => {
       ideaTypeInput.value = "link";
       tabLinkBtn.className =
-        "flex-1 py-2 rounded-lg font-medium text-sm transition-all flex items-center justify-center space-x-2 bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm";
+        "flex-1 py-2 rounded-lg font-medium text-sm transition-all flex items-center justify-center space-x-2 bg-white text-slate-900 shadow-sm";
       tabNoteBtn.className =
-        "flex-1 py-2 rounded-lg font-medium text-sm text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all flex items-center justify-center space-x-2";
+        "flex-1 py-2 rounded-lg font-medium text-sm text-slate-500 hover:text-slate-900 transition-all flex items-center justify-center space-x-2";
       urlContainer?.classList.remove("hidden");
     });
 
     tabNoteBtn?.addEventListener("click", () => {
       ideaTypeInput.value = "note";
       tabNoteBtn.className =
-        "flex-1 py-2 rounded-lg font-medium text-sm transition-all flex items-center justify-center space-x-2 bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm";
+        "flex-1 py-2 rounded-lg font-medium text-sm transition-all flex items-center justify-center space-x-2 bg-white text-slate-900 shadow-sm";
       tabLinkBtn.className =
-        "flex-1 py-2 rounded-lg font-medium text-sm text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all flex items-center justify-center space-x-2";
+        "flex-1 py-2 rounded-lg font-medium text-sm text-slate-500 hover:text-slate-900 transition-all flex items-center justify-center space-x-2";
       urlContainer?.classList.add("hidden");
     });
 
@@ -357,18 +398,18 @@ export const ui = {
       tabRoom?.classList.remove("hidden");
       tabShare?.classList.add("hidden");
       tabRoomBtn.className =
-        "flex-1 py-2 rounded-lg font-medium text-sm transition-all bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm";
+        "flex-1 py-2 rounded-lg font-medium text-sm transition-all bg-white text-slate-900 shadow-sm";
       tabShareBtn.className =
-        "flex-1 py-2 rounded-lg font-medium text-sm text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all";
+        "flex-1 py-2 rounded-lg font-medium text-sm text-slate-500 hover:text-slate-900 transition-all";
     });
 
     tabShareBtn?.addEventListener("click", () => {
       tabShare?.classList.remove("hidden");
       tabRoom?.classList.add("hidden");
       tabShareBtn.className =
-        "flex-1 py-2 rounded-lg font-medium text-sm transition-all bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm";
+        "flex-1 py-2 rounded-lg font-medium text-sm transition-all bg-white text-slate-900 shadow-sm";
       tabRoomBtn.className =
-        "flex-1 py-2 rounded-lg font-medium text-sm text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all";
+        "flex-1 py-2 rounded-lg font-medium text-sm text-slate-500 hover:text-slate-900 transition-all";
     });
 
     // Create Room
@@ -467,6 +508,7 @@ export const ui = {
     // Listen to Collab Status Changes
     collab.onStatusChange((status) => {
       const btnLabel = document.getElementById("collab-btn-label");
+      const collabBtn = document.getElementById("collab-btn");
       const pingEl = document.getElementById("collab-ping");
       const dotEl = document.getElementById("collab-dot");
       const offlineView = document.getElementById("collab-offline-view");
@@ -476,9 +518,11 @@ export const ui = {
 
       if (status.isInRoom) {
         if (btnLabel) btnLabel.textContent = `Live (${status.peerCount})`;
+        collabBtn?.classList.remove("bg-white", "hover:bg-slate-100", "text-slate-700", "border-slate-200/80");
+        collabBtn?.classList.add("bg-emerald-600", "hover:bg-emerald-700", "text-white", "border-emerald-600");
         pingEl?.classList.remove("opacity-0");
         dotEl?.classList.remove("bg-slate-400");
-        dotEl?.classList.add("bg-emerald-500");
+        dotEl?.classList.add("bg-emerald-300");
 
         offlineView?.classList.add("hidden");
         onlineView?.classList.remove("hidden");
@@ -486,8 +530,10 @@ export const ui = {
         if (peerCountText) peerCountText.textContent = status.peerCount;
       } else {
         if (btnLabel) btnLabel.textContent = "Collaborate";
+        collabBtn?.classList.add("bg-white", "hover:bg-slate-100", "text-slate-700", "border-slate-200/80");
+        collabBtn?.classList.remove("bg-emerald-600", "hover:bg-emerald-700", "text-white", "border-emerald-600");
         pingEl?.classList.add("opacity-0");
-        dotEl?.classList.remove("bg-emerald-500");
+        dotEl?.classList.remove("bg-emerald-300");
         dotEl?.classList.add("bg-slate-400");
 
         offlineView?.classList.remove("hidden");
@@ -617,18 +663,33 @@ export const ui = {
   },
 
   renderCategories() {
-    categoryScroller.innerHTML = store.folders
+    // Style as Folder View chips with folder icons 📁
+    const chipsHtml = store.folders
       .map(
         (folder) => `
       <button 
         class="chip ${this.currentFolderId === folder.id ? "chip-active" : "chip-inactive"}"
         data-id="${folder.id}"
       >
-        ${folder.name}
+        <span class="text-sm">📁</span>
+        <span>${folder.name}</span>
       </button>
     `,
       )
       .join("");
+
+    // Single "+ New Category" dashed button right after the folder list
+    const addChipHtml = `
+      <button 
+        id="add-category-chip-btn"
+        class="add-category-chip"
+        title="Create a new folder"
+      >
+        <span>+ New Category</span>
+      </button>
+    `;
+
+    categoryScroller.innerHTML = chipsHtml + addChipHtml;
 
     categoryScroller.querySelectorAll(".chip").forEach((chip) => {
       chip.addEventListener("click", () => {
@@ -636,6 +697,11 @@ export const ui = {
         this.renderCategories();
         this.renderPosts();
       });
+    });
+
+    const addChipBtn = document.getElementById("add-category-chip-btn");
+    addChipBtn?.addEventListener("click", () => {
+      this.openNewFolderModal();
     });
   },
 
@@ -662,21 +728,21 @@ export const ui = {
           folder.id !== "all" && folder.id !== "uncategorized";
 
         return `
-            <div class="flex items-center justify-between p-3.5 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200/60 dark:border-slate-700/60">
+            <div class="flex items-center justify-between p-3.5 bg-slate-50 rounded-xl border border-slate-200/60">
                 <div class="flex items-center space-x-3">
-                    <div class="w-9 h-9 rounded-full bg-white dark:bg-slate-700 flex items-center justify-center text-slate-500 dark:text-slate-300 shadow-sm">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+                    <div class="w-9 h-9 rounded-full bg-white flex items-center justify-center text-slate-500 shadow-sm">
+                        <span class="text-base">📁</span>
                     </div>
-                    <span class="font-medium text-slate-800 dark:text-slate-100">${folder.name}</span>
+                    <span class="font-medium text-slate-800">${folder.name}</span>
                 </div>
                 <div class="flex items-center space-x-1">
-                    <button class="p-2 text-slate-400 hover:text-blue-500 hover:bg-white dark:hover:bg-slate-700 rounded-lg transition-colors edit-folder-btn" data-id="${folder.id}" title="Rename">
+                    <button class="p-2 text-slate-400 hover:text-blue-500 hover:bg-white rounded-lg transition-colors edit-folder-btn" data-id="${folder.id}" title="Rename">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
                     </button>
                     ${
                       canDelete
                         ? `
-                    <button class="p-2 text-slate-400 hover:text-red-500 hover:bg-white dark:hover:bg-slate-700 rounded-lg transition-colors delete-folder-btn" data-id="${folder.id}" title="Delete">
+                    <button class="p-2 text-slate-400 hover:text-red-500 hover:bg-white rounded-lg transition-colors delete-folder-btn" data-id="${folder.id}" title="Delete">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
                     </button>
                     `
@@ -748,7 +814,8 @@ export const ui = {
                 class="folder-select-chip folder-chip ${this.selectedFolderForNewPost === folder.id ? "folder-chip-active" : "folder-chip-inactive"}"
                 data-id="${folder.id}"
             >
-                ${folder.name}
+                <span>📁</span>
+                <span>${folder.name}</span>
             </button>
         `,
       )
@@ -757,8 +824,8 @@ export const ui = {
     const addFolderBtn = document.createElement("button");
     addFolderBtn.type = "button";
     addFolderBtn.className =
-      "px-3 py-1.5 rounded-lg border border-dashed border-slate-400 text-slate-500 text-xs font-medium hover:bg-white/40 dark:hover:bg-slate-700";
-    addFolderBtn.textContent = "+ New";
+      "px-3 py-1.5 rounded-lg border border-dashed border-slate-400 text-slate-500 text-xs font-medium hover:bg-white/40 flex items-center space-x-1";
+    addFolderBtn.innerHTML = `<span>+ New</span>`;
     addFolderBtn.onclick = () => {
       this.openNewFolderModal();
     };
@@ -832,14 +899,14 @@ export const ui = {
 
     if (posts.length === 0) {
       postList.innerHTML = `
-            <div class="col-span-full text-center my-16 text-slate-500 dark:text-slate-400 flex flex-col items-center">
-                <div class="w-16 h-16 rounded-3xl bg-slate-200/60 dark:bg-slate-800/80 flex items-center justify-center mb-4 text-2xl">
+            <div class="col-span-full text-center my-16 text-slate-500 flex flex-col items-center">
+                <div class="w-16 h-16 rounded-3xl bg-slate-200/60 flex items-center justify-center mb-4 text-2xl">
                     ${this.searchQuery || this.activeTag || this.filterType !== "all" ? "🔍" : "💡"}
                 </div>
-                <p class="font-semibold text-slate-700 dark:text-slate-300 text-base mb-1">
+                <p class="font-semibold text-slate-700 text-base mb-1">
                   ${this.searchQuery || this.activeTag || this.filterType !== "all" ? "No matching ideas found" : "No ideas here yet"}
                 </p>
-                <p class="text-xs text-slate-400 dark:text-slate-500 max-w-xs">
+                <p class="text-xs text-slate-400 max-w-xs">
                   ${this.searchQuery || this.activeTag || this.filterType !== "all" ? "Try clearing your filters or search terms above." : "Tap the '+ New Idea' button below to capture links, notes, or inspiration!"}
                 </p>
             </div>
@@ -849,12 +916,7 @@ export const ui = {
 
     posts.forEach((post) => {
       const el = document.createElement("div");
-      const borderClass =
-        post.color && post.color !== "default"
-          ? `card-border-${post.color}`
-          : "card-border-default";
-
-      el.className = `post-item-container group animate-fade-in`;
+      el.className = `post-item-container group animate-fade-in w-full`;
 
       const domain = post.url
         ? (() => {
@@ -880,114 +942,132 @@ export const ui = {
               ${post.tags
                 .map(
                   (tag) =>
-                    `<button type="button" class="tag-pill-btn px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 hover:bg-primary/15 hover:text-primary dark:hover:bg-blue-900/60 dark:hover:text-blue-300 text-[11px] font-medium text-slate-600 dark:text-slate-300 transition-colors" data-tag="${tag}">${tag}</button>`,
+                    `<button type="button" class="tag-pill-btn px-2 py-0.5 rounded-md bg-slate-100 hover:bg-slate-200 hover:text-slate-900 text-[11px] font-medium text-slate-600 transition-colors" data-tag="${tag}">${tag}</button>`,
                 )
                 .join("")}
              </div>`
           : "";
 
-      el.innerHTML = `
-        <div class="post-delete-bg">
-          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-        </div>
-        <div class="post-edit-bg">
-          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
-        </div>
-        <div class="post-content glass-panel p-4 sm:p-5 ${borderClass} flex flex-col justify-between h-full hover:shadow-2xl transition-all" style="transform: translateX(0px);">
-          <div>
-            <!-- Card Header -->
-            <div class="flex items-start justify-between gap-2 mb-2">
-              <div class="flex items-center space-x-2 min-w-0">
-                ${
-                  faviconUrl
-                    ? `<img src="${faviconUrl}" alt="favicon" class="w-4 h-4 rounded-sm flex-shrink-0" />`
-                    : `<span class="text-base flex-shrink-0">📝</span>`
-                }
-                <span class="text-[11px] font-medium px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 truncate">
-                  ${folderName}
-                </span>
-              </div>
+      const isListView = this.viewMode === "list";
 
+      if (isListView) {
+        el.innerHTML = `
+          <div class="post-delete-bg">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2-2v2"></path></svg>
+          </div>
+          <div class="post-edit-bg">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+          </div>
+          <div class="post-content bg-white border border-slate-200/80 rounded-xl px-4 py-3 hover:border-slate-300 hover:bg-slate-50 transition-all flex items-center justify-between gap-3 w-full" style="transform: translateX(0px);">
+            <!-- Left Info -->
+            <div class="flex items-center space-x-3 min-w-0 flex-1">
+              ${
+                faviconUrl
+                  ? `<img src="${faviconUrl}" alt="favicon" class="w-4 h-4 rounded-sm flex-shrink-0" />`
+                  : `<span class="text-base flex-shrink-0">📝</span>`
+              }
+              <h3 class="font-bold text-slate-900 text-sm sm:text-base mr-1 flex-shrink-0 cursor-pointer post-title-trigger hover:text-primary transition-colors">
+                ${post.title}
+              </h3>
+              <span class="text-[11px] font-medium px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 border border-slate-200/60 flex items-center space-x-1 flex-shrink-0">
+                <span>📁</span>
+                <span>${folderName}</span>
+              </span>
+              ${
+                post.note
+                  ? `<span class="text-xs text-slate-500 truncate hidden md:inline min-w-0">${post.note.replace(/\r?\n/g, " ")}</span>`
+                  : post.url
+                    ? `<a href="${post.url}" target="_blank" rel="noopener noreferrer" class="text-xs text-slate-400 hover:text-primary truncate hidden md:inline min-w-0" onclick="event.stopPropagation()">${domain}</a>`
+                    : ""
+              }
+              ${
+                post.tags && post.tags.length > 0
+                  ? `<button type="button" class="tag-pill-btn text-[10px] hidden lg:inline-flex bg-slate-100 hover:bg-slate-200 text-slate-500 px-1.5 py-0.5 rounded font-medium transition-colors" data-tag="${post.tags[0]}">${post.tags[0]}</button>`
+                  : ""
+              }
+            </div>
+
+            <!-- Right Actions (ONLY Pin button to keep List View ultra-clean!) -->
+            <div class="flex items-center space-x-2 flex-shrink-0">
+              <span class="text-xs text-slate-400 hidden sm:inline mr-1">${new Date(post.createdAt).toLocaleDateString()}</span>
               <!-- Pin Button -->
               <button
                 type="button"
-                class="pin-post-btn p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors ${post.isPinned ? "text-amber-500" : "text-slate-300 dark:text-slate-600 hover:text-amber-500"}"
+                class="pin-post-btn p-1.5 rounded-lg hover:bg-slate-100 transition-colors ${post.isPinned ? "text-amber-500" : "text-slate-300 hover:text-amber-500"}"
                 title="${post.isPinned ? "Unpin idea" : "Pin to top"}"
               >
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="${post.isPinned ? "currentColor" : "none"}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
-              </button>
-            </div>
-
-            <!-- Title -->
-            <h3 class="font-bold text-slate-900 dark:text-white text-base leading-snug mb-1 line-clamp-2 cursor-pointer post-title-trigger">
-              ${post.title}
-            </h3>
-
-            <!-- Note content -->
-            ${
-              post.note
-                ? `<p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed mb-2 line-clamp-3 whitespace-pre-line">${post.note}</p>`
-                : ""
-            }
-
-            <!-- URL domain display -->
-            ${
-              post.url
-                ? `<a href="${post.url}" target="_blank" rel="noopener noreferrer" class="text-xs text-primary dark:text-blue-400 hover:underline flex items-center space-x-1 truncate mb-1" onclick="event.stopPropagation()">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
-                    <span class="truncate">${domain}</span>
-                   </a>`
-                : ""
-            }
-
-            <!-- Tag Pills -->
-            ${tagsHtml}
-          </div>
-
-          <!-- Card Footer Action Bar -->
-          <div class="flex items-center justify-between pt-3 mt-3 border-t border-slate-200/60 dark:border-slate-800 text-xs text-slate-400">
-            <span>${new Date(post.createdAt).toLocaleDateString()}</span>
-            
-            <div class="flex items-center space-x-1">
-              <!-- Copy Link/Note -->
-              <button
-                type="button"
-                class="copy-post-btn p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white transition-colors"
-                title="Copy ${post.url ? "link" : "note"}"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-              </button>
-
-              <!-- Share -->
-              <button
-                type="button"
-                class="share-post-btn p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 hover:text-primary dark:hover:text-blue-400 transition-colors"
-                title="Copy shareable link"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
-              </button>
-
-              <!-- Edit -->
-              <button
-                type="button"
-                class="edit-post-btn p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white transition-colors"
-                title="Edit idea"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
-              </button>
-
-              <!-- Delete -->
-              <button
-                type="button"
-                class="delete-post-btn p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 hover:text-red-500 transition-colors"
-                title="Delete idea"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="${post.isPinned ? "currentColor" : "none"}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
               </button>
             </div>
           </div>
-        </div>
-      `;
+        `;
+      } else {
+        el.innerHTML = `
+          <div class="post-delete-bg">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2-2v2"></path></svg>
+          </div>
+          <div class="post-edit-bg">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+          </div>
+          <div class="post-content bg-white border border-slate-200/90 rounded-2xl p-5 flex flex-col justify-between h-full hover:border-slate-300 hover:bg-slate-50/50 transition-colors" style="transform: translateX(0px);">
+            <div>
+              <!-- Card Header -->
+              <div class="flex items-center justify-between gap-2 mb-3">
+                <div class="flex items-center space-x-2 min-w-0">
+                  ${
+                    faviconUrl
+                      ? `<img src="${faviconUrl}" alt="favicon" class="w-4 h-4 rounded-sm flex-shrink-0" />`
+                      : `<span class="text-base flex-shrink-0">📝</span>`
+                  }
+                  <span class="text-[11px] font-medium px-2.5 py-1 rounded-lg bg-slate-100 text-slate-700 border border-slate-200/60 truncate flex items-center space-x-1">
+                    <span>📁</span>
+                    <span>${folderName}</span>
+                  </span>
+                </div>
+
+                <!-- Pin Button -->
+                <button
+                  type="button"
+                  class="pin-post-btn p-1.5 rounded-lg hover:bg-slate-100 transition-colors ${post.isPinned ? "text-amber-500" : "text-slate-300 hover:text-amber-500"}"
+                  title="${post.isPinned ? "Unpin idea" : "Pin to top"}"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="${post.isPinned ? "currentColor" : "none"}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                </button>
+              </div>
+
+              <!-- Title -->
+              <h3 class="font-bold text-slate-900 text-base sm:text-lg leading-snug mb-2 line-clamp-2 cursor-pointer post-title-trigger hover:text-primary transition-colors">
+                ${post.title}
+              </h3>
+
+              <!-- Note content -->
+              ${
+                post.note
+                  ? `<p class="text-xs sm:text-sm text-slate-600 leading-relaxed mb-3 line-clamp-3 whitespace-pre-line">${post.note}</p>`
+                  : ""
+              }
+
+              <!-- URL domain display -->
+              ${
+                post.url
+                  ? `<a href="${post.url}" target="_blank" rel="noopener noreferrer" class="text-xs font-medium text-slate-500 hover:text-primary flex items-center space-x-1.5 truncate mb-3 transition-colors" onclick="event.stopPropagation()">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
+                      <span class="truncate">${domain}</span>
+                     </a>`
+                  : ""
+              }
+
+              <!-- Tag Pills -->
+              ${tagsHtml}
+            </div>
+
+            <!-- Card Footer Action Bar (Clean Date only, no edit/delete buttons!) -->
+            <div class="flex items-center justify-between pt-3 mt-3 text-xs text-slate-400">
+              <span>${new Date(post.createdAt).toLocaleDateString()}</span>
+            </div>
+          </div>
+        `;
+      }
 
       // Attach Card Action Listeners
       this.setupCardActions(el, post);
@@ -1039,7 +1119,7 @@ export const ui = {
     el.querySelector(".share-post-btn")?.addEventListener("click", (e) => {
       e.stopPropagation();
       const shareUrl = collab.generateShareUrl({
-        version: "0.2.0",
+        version: "0.2.1",
         posts: [post],
         folders: [],
       });
@@ -1066,13 +1146,15 @@ export const ui = {
       );
     });
 
-    // Clicking card title opens view/link
-    el.querySelector(".post-title-trigger")?.addEventListener("click", () => {
-      if (post.url) {
-        this.openPost(post);
-      } else {
-        this.openAddModal(post);
-      }
+    // Clicking card title or card content ALWAYS opens detailed contents (never edit mode!)
+    const handleClick = (e) => {
+      if (el._didSwipe) return;
+      this.openPost(post);
+    };
+    el.querySelector(".post-title-trigger")?.addEventListener("click", handleClick);
+    el.querySelector(".post-content")?.addEventListener("click", (e) => {
+      if (e.target.closest("button") || e.target.closest("a")) return;
+      handleClick(e);
     });
   },
 
@@ -1081,45 +1163,42 @@ export const ui = {
     let startX = 0;
     let currentX = 0;
     let isDragging = false;
+    el._didSwipe = false;
 
-    content.addEventListener(
-      "touchstart",
-      (e) => {
-        startX = e.touches[0].clientX;
-        isDragging = true;
-        content.style.transition = "none";
-      },
-      { passive: true },
-    );
+    const startDrag = (x) => {
+      startX = x;
+      isDragging = true;
+      el._didSwipe = false;
+      content.style.transition = "none";
+    };
 
-    content.addEventListener(
-      "touchmove",
-      (e) => {
-        if (!isDragging) return;
-        const x = e.touches[0].clientX;
-        const diff = x - startX;
-        currentX = diff;
+    const moveDrag = (x) => {
+      if (!isDragging) return;
+      const diff = x - startX;
+      currentX = diff;
 
-        if (Math.abs(currentX) > 80) {
-          const sign = Math.sign(currentX);
-          const extra = Math.abs(currentX) - 80;
-          currentX = (80 + extra * 0.4) * sign;
-        }
+      if (Math.abs(currentX) > 10) {
+        el._didSwipe = true;
+      }
 
-        content.style.transform = `translateX(${currentX}px)`;
+      if (Math.abs(currentX) > 80) {
+        const sign = Math.sign(currentX);
+        const extra = Math.abs(currentX) - 80;
+        currentX = (80 + extra * 0.4) * sign;
+      }
 
-        if (currentX < 0) {
-          el.classList.add("swiping-delete");
-          el.classList.remove("swiping-edit");
-        } else if (currentX > 0) {
-          el.classList.add("swiping-edit");
-          el.classList.remove("swiping-delete");
-        }
-      },
-      { passive: true },
-    );
+      content.style.transform = `translateX(${currentX}px)`;
 
-    content.addEventListener("touchend", () => {
+      if (currentX < 0) {
+        el.classList.add("swiping-delete");
+        el.classList.remove("swiping-edit");
+      } else if (currentX > 0) {
+        el.classList.add("swiping-edit");
+        el.classList.remove("swiping-delete");
+      }
+    };
+
+    const endDrag = () => {
       if (!isDragging) return;
       isDragging = false;
       content.style.transition =
@@ -1140,7 +1219,7 @@ export const ui = {
           `"${post.title}" will be deleted.`,
           () => {
             store.deletePost(post.id);
-            this.showToast("Idea deleted");
+            this.showToast("Idea deleted", "default");
           },
         );
       } else if (currentX > THRESHOLD) {
@@ -1151,14 +1230,50 @@ export const ui = {
         content.style.transform = `translateX(0)`;
       }
       currentX = 0;
+    };
+
+    // Touch events for mobile/tablet
+    content.addEventListener(
+      "touchstart",
+      (e) => startDrag(e.touches[0].clientX),
+      { passive: true },
+    );
+
+    content.addEventListener(
+      "touchmove",
+      (e) => moveDrag(e.touches[0].clientX),
+      { passive: true },
+    );
+
+    content.addEventListener("touchend", () => endDrag());
+
+    // Mouse events for desktop swipe testing
+    content.addEventListener("mousedown", (e) => {
+      if (e.target.closest("button") || e.target.closest("a")) return;
+      startDrag(e.clientX);
     });
+
+    window.addEventListener("mousemove", (e) => {
+      if (!isDragging) return;
+      moveDrag(e.clientX);
+    });
+
+    window.addEventListener("mouseup", () => endDrag());
   },
 
   openPost(post) {
+    const viewModal = document.getElementById("view-modal");
+    const viewModalTitle = document.getElementById("view-modal-title");
+    const externalLinkBtn = document.getElementById("external-link-btn");
+    const persistentExternalBtn = document.getElementById("persistent-external-btn");
+    const viewFrame = document.getElementById("view-frame");
+    const iframeFallback = document.getElementById("iframe-fallback");
+    const noteViewContainer = document.getElementById("note-view-container");
+    const noteViewMeta = document.getElementById("note-view-meta");
+    const noteViewBody = document.getElementById("note-view-body");
+
     viewModal.classList.remove("hidden");
-    viewModalTitle.textContent = post.title;
-    externalLinkBtn.href = post.url;
-    if (persistentExternalBtn) persistentExternalBtn.href = post.url;
+    viewModalTitle.textContent = post.title || "Idea Detail";
 
     const editBtn = document.getElementById("edit-post-btn");
     const newEditBtn = editBtn.cloneNode(true);
@@ -1169,23 +1284,126 @@ export const ui = {
       this.openAddModal(post);
     });
 
-    iframeFallback.classList.add("hidden");
-    viewFrame.classList.remove("hidden");
+    const folder = store.folders.find((f) => f.id === post.folderId) || { name: "Uncategorized" };
+    const dateStr = new Date(post.createdAt).toLocaleDateString();
 
-    try {
-      const embedUrl = getEmbedUrl(post.url);
-      viewFrame.src = embedUrl;
-    } catch (e) {
-      this.showFallback(post.url);
+    if (!post.url) {
+      // Note idea: Show clean detailed content view
+      if (viewFrame) viewFrame.classList.add("hidden");
+      if (iframeFallback) iframeFallback.classList.add("hidden");
+      if (externalLinkBtn) externalLinkBtn.classList.add("hidden");
+      if (persistentExternalBtn) persistentExternalBtn.classList.add("hidden");
+      if (noteViewContainer) {
+        noteViewContainer.classList.remove("hidden");
+        if (noteViewMeta) {
+          noteViewMeta.innerHTML = `
+            <span class="inline-flex items-center space-x-1 px-2.5 py-1 rounded-lg bg-slate-100 text-slate-700 font-medium">📁 ${folder.name}</span>
+            <span>•</span>
+            <span>Created ${dateStr}</span>
+            ${
+              post.tags && post.tags.length > 0
+                ? `<span>•</span>` + post.tags.map((t) => `<span class="text-primary font-medium">#${t}</span>`).join(" ")
+                : ""
+            }
+          `;
+        }
+        if (noteViewBody) {
+          noteViewBody.textContent = post.note || "No additional notes.";
+        }
+      }
+    } else {
+      // Link idea: Check if site allows iframe embedding (prevent X-Frame-Options / CSP errors)
+      if (noteViewContainer) noteViewContainer.classList.add("hidden");
+      if (externalLinkBtn) {
+        externalLinkBtn.classList.remove("hidden");
+        externalLinkBtn.href = post.url;
+      }
+      if (persistentExternalBtn) {
+        persistentExternalBtn.classList.remove("hidden");
+        persistentExternalBtn.href = post.url;
+      }
+
+      if (!canEmbedUrl(post.url)) {
+        // Site sets X-Frame-Options: deny / sameorigin (Instagram, Twitter, GitHub, etc.)
+        // Display rich website preview card immediately without triggering iframe console errors!
+        this.showFallback(post.url, post);
+      } else {
+        if (iframeFallback) iframeFallback.classList.add("hidden");
+        if (viewFrame) viewFrame.classList.remove("hidden");
+
+        try {
+          const embedUrl = getEmbedUrl(post.url);
+          if (viewFrame) viewFrame.src = embedUrl;
+        } catch (e) {
+          this.showFallback(post.url, post);
+        }
+      }
+      const fallbackLink = document.getElementById("fallback-link");
+      if (fallbackLink) fallbackLink.href = post.url;
     }
-
-    fallbackLink.href = post.url;
   },
 
-  showFallback(url) {
-    viewFrame.classList.add("hidden");
-    iframeFallback.classList.remove("hidden");
-    fallbackLink.href = url;
+  showFallback(url, post = null) {
+    const viewFrame = document.getElementById("view-frame");
+    const iframeFallback = document.getElementById("iframe-fallback");
+    const fallbackLink = document.getElementById("fallback-link");
+    const persistentExternalBtn = document.getElementById("persistent-external-btn");
+    const fallbackMeta = document.getElementById("fallback-meta");
+    const fallbackDomainBadge = document.getElementById("fallback-domain-badge");
+    const fallbackTitle = document.getElementById("fallback-title");
+    const fallbackNote = document.getElementById("fallback-note");
+    const fallbackCopyBtn = document.getElementById("fallback-copy-btn");
+
+    if (viewFrame) {
+      viewFrame.src = "about:blank";
+      viewFrame.classList.add("hidden");
+    }
+    if (persistentExternalBtn) persistentExternalBtn.classList.add("hidden");
+    if (iframeFallback) iframeFallback.classList.remove("hidden");
+    if (fallbackLink) fallbackLink.href = url;
+
+    try {
+      const u = new URL(url);
+      if (fallbackDomainBadge) {
+        fallbackDomainBadge.textContent = `🌐 ${u.hostname.replace(/^www\./, "")}`;
+      }
+    } catch (e) {
+      if (fallbackDomainBadge) fallbackDomainBadge.textContent = "🌐 External Link";
+    }
+
+    if (post) {
+      const folder = store.folders.find((f) => f.id === post.folderId) || { name: "Uncategorized" };
+      const dateStr = new Date(post.createdAt).toLocaleDateString();
+      if (fallbackMeta) {
+        fallbackMeta.innerHTML = `
+          <span class="inline-flex items-center space-x-1 px-2.5 py-1 rounded-lg bg-slate-100 text-slate-700 font-medium">📁 ${folder.name}</span>
+          <span>•</span>
+          <span>Created ${dateStr}</span>
+          ${
+            post.tags && post.tags.length > 0
+              ? `<span>•</span>` + post.tags.map((t) => `<span class="text-primary font-medium">#${t}</span>`).join(" ")
+              : ""
+          }
+        `;
+      }
+      if (fallbackTitle) {
+        fallbackTitle.textContent = post.title || "External Link";
+      }
+      if (fallbackNote) {
+        fallbackNote.textContent = post.note || "No additional note written for this link.";
+      }
+    } else {
+      if (fallbackTitle) fallbackTitle.textContent = url;
+      if (fallbackNote) fallbackNote.textContent = "";
+      if (fallbackMeta) fallbackMeta.innerHTML = "";
+    }
+
+    if (fallbackCopyBtn) {
+      fallbackCopyBtn.onclick = () => {
+        navigator.clipboard.writeText(url);
+        this.showToast("URL copied to clipboard! 📋", "success");
+      };
+    }
   },
 
   async fetchPageTitle(url) {
@@ -1233,51 +1451,5 @@ export const ui = {
       console.warn("Failed to fetch title:", error);
       return null;
     }
-  },
-
-  setupInstallPrompt() {
-    const installModal = document.getElementById("install-modal");
-    const installBtn = document.getElementById("install-accept-btn");
-    const dismissBtn = document.getElementById("install-dismiss-btn");
-    const backdrop = document.getElementById("install-modal-backdrop");
-    const settingsInstallRow = document.getElementById("settings-install-row");
-    const settingsInstallBtn = document.getElementById("settings-install-btn");
-
-    let deferredPrompt;
-
-    window.addEventListener("beforeinstallprompt", (e) => {
-      e.preventDefault();
-      deferredPrompt = e;
-      installModal?.classList.remove("hidden");
-      if (settingsInstallRow) settingsInstallRow.classList.remove("hidden");
-    });
-
-    const hideModal = () => {
-      installModal?.classList.add("hidden");
-    };
-
-    dismissBtn?.addEventListener("click", hideModal);
-    backdrop?.addEventListener("click", hideModal);
-
-    const triggerInstall = async () => {
-      hideModal();
-      if (deferredPrompt) {
-        deferredPrompt.prompt();
-        const { outcome } = await deferredPrompt.userChoice;
-        deferredPrompt = null;
-        if (outcome === "accepted" && settingsInstallRow) {
-          settingsInstallRow.classList.add("hidden");
-        }
-      }
-    };
-
-    installBtn?.addEventListener("click", triggerInstall);
-    settingsInstallBtn?.addEventListener("click", triggerInstall);
-
-    window.addEventListener("appinstalled", () => {
-      hideModal();
-      deferredPrompt = null;
-      if (settingsInstallRow) settingsInstallRow.classList.add("hidden");
-    });
   },
 };

@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" class="light">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta
@@ -30,27 +30,27 @@
     <link rel="icon" type="image/svg+xml" href="/icon.svg" />
     <link rel="manifest" href="/manifest.json" />
 
-    <!-- Google Fonts: Outfit -->
+    <!-- Google Fonts: Alan Sans -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Alan+Sans:wght@300;400;500;600;700&display=swap"
       rel="stylesheet"
     />
 
     <!-- PeerJS for zero-server real-time WebRTC rooms -->
     <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
-    <script type="module" crossorigin src="/assets/index-D2qYc8O0.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index-XF6YguT1.css">
+    <script type="module" crossorigin src="/assets/index-CWZPf5c_.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-BGO3T6PU.css">
   </head>
-  <body class="antialiased font-sans overflow-x-hidden bg-slate-100 dark:bg-slate-950 text-slate-800 dark:text-slate-100 transition-colors duration-300">
+  <body class="antialiased font-sans overflow-x-hidden bg-slate-100 text-slate-800">
     <div
       id="app"
-      class="min-h-screen flex flex-col relative max-w-6xl mx-auto w-full bg-slate-50 dark:bg-slate-900 shadow-2xl overflow-hidden rounded-none sm:rounded-3xl sm:my-4 border border-white/40 dark:border-slate-800 transition-colors duration-300"
+      class="min-h-screen flex flex-col relative max-w-6xl mx-auto w-full bg-slate-50 shadow-2xl overflow-hidden rounded-none sm:rounded-3xl sm:my-4 border border-white/60"
     >
       <!-- Header -->
       <header
-        class="flex-none px-4 sm:px-6 py-4 flex justify-between items-center z-20 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200/60 dark:border-slate-800"
+        class="flex-none px-4 sm:px-6 py-4 flex justify-between items-center z-20 bg-white/85 backdrop-blur-md border-b border-slate-200/80"
       >
         <div class="flex items-center space-x-3">
           <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-primary to-blue-500 flex items-center justify-center text-white shadow-md shadow-primary/25">
@@ -58,62 +58,59 @@
           </div>
           <div>
             <div class="flex items-center space-x-2">
-              <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
+              <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-slate-900">
                 IdeaHub
               </h1>
-              <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-blue-100 dark:bg-blue-900/60 text-blue-600 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
-                Collab
-              </span>
             </div>
-            <p class="text-xs text-slate-500 dark:text-slate-400 hidden sm:block">
+            <p class="text-xs text-slate-500 hidden sm:block">
               Save, organize & share ideas together
             </p>
           </div>
         </div>
 
-        <div class="flex items-center space-x-2 sm:space-x-3">
-          <!-- Collab Button -->
+        <div class="flex items-center space-x-2 sm:space-x-2.5">
+          <!-- Collaborate Button (Cohesive UI Design matching Settings) -->
           <button
             id="collab-btn"
-            class="flex items-center space-x-2 px-3.5 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700/80 border border-slate-200/80 dark:border-slate-700/80 transition-all shadow-sm text-sm font-medium text-slate-700 dark:text-slate-200"
-            title="Collaborate & Share"
+            class="flex items-center space-x-2 px-3.5 py-2 rounded-xl bg-white hover:bg-slate-100 border border-slate-200/80 text-slate-700 font-semibold text-xs sm:text-sm shadow-sm transition-all active:scale-95"
+            title="Collaborate & Share Rooms"
           >
-            <span class="relative flex h-2.5 w-2.5">
+            <span class="text-sm">👥</span>
+            <span id="collab-btn-label" class="whitespace-nowrap">Collaborate</span>
+            <span class="relative flex h-2 w-2 ml-0.5">
               <span id="collab-ping" class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-0"></span>
-              <span id="collab-dot" class="relative inline-flex rounded-full h-2.5 w-2.5 bg-slate-400"></span>
+              <span id="collab-dot" class="relative inline-flex rounded-full h-2 w-2 bg-slate-400"></span>
             </span>
-            <span class="hidden sm:inline" id="collab-btn-label">Collaborate</span>
-          </button>
-
-          <!-- Theme Toggle -->
-          <button
-            id="theme-toggle-btn"
-            class="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition-colors border border-slate-200/60 dark:border-slate-700/80"
-            title="Toggle light / dark theme"
-          >
-            <svg id="sun-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hidden dark:block"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
-            <svg id="moon-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="block dark:hidden"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
           </button>
 
           <!-- Settings Button -->
           <button
             id="settings-btn"
-            class="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition-colors border border-slate-200/60 dark:border-slate-700/80"
+            class="px-3 py-2 rounded-xl bg-white hover:bg-slate-100 border border-slate-200/80 text-slate-700 font-semibold text-xs sm:text-sm transition-all shadow-sm flex items-center space-x-1.5 active:scale-95"
             title="Settings"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 5 9.4a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 5 9.4a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+            <span class="hidden sm:inline">Settings</span>
           </button>
         </div>
       </header>
 
-      <!-- Category Tabs & Toolbar -->
-      <div class="flex-none bg-white/60 dark:bg-slate-900/60 backdrop-blur-md border-b border-slate-200/60 dark:border-slate-800/80 px-4 sm:px-6 py-3 space-y-3 z-10">
-        <!-- Folders Horizontal Scroller -->
-        <div
-          id="category-scroller"
-          class="flex items-center space-x-2 overflow-x-auto no-scrollbar py-1"
-        >
-          <!-- Categories injected by JS -->
+      <!-- Category Folders & Toolbar -->
+      <div class="flex-none bg-white/70 backdrop-blur-md border-b border-slate-200/80 px-4 sm:px-6 py-3 space-y-3 z-10">
+        <!-- Folders Row -->
+        <div>
+          <div class="flex items-center justify-between mb-1.5">
+            <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider flex items-center space-x-1">
+              <span>Folders</span>
+            </span>
+          </div>
+          <!-- Horizontal Scroller -->
+          <div
+            id="category-scroller"
+            class="flex items-center space-x-2 overflow-x-auto no-scrollbar py-1"
+          >
+            <!-- Folder tabs injected by JS -->
+          </div>
         </div>
 
         <!-- Search & Filter Bar -->
@@ -127,21 +124,21 @@
               type="text"
               id="search-input"
               placeholder="Search ideas, notes, URL or #tags..."
-              class="w-full pl-10 pr-10 py-2 text-sm bg-white/90 dark:bg-slate-800/90 border border-slate-200/80 dark:border-slate-700/80 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/40 text-slate-800 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 transition-all shadow-sm"
+              class="w-full pl-10 pr-10 py-2 text-sm bg-white border border-slate-200/80 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/40 text-slate-800 placeholder-slate-400 transition-all shadow-sm"
             />
             <button
               id="search-clear-btn"
-              class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hidden"
+              class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 hidden"
               title="Clear search"
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
             </button>
           </div>
 
-          <!-- Filter & View Controls -->
-          <div class="flex items-center justify-between sm:justify-end space-x-2 overflow-x-auto no-scrollbar">
+          <!-- Filter & View Controls (Wrapped cleanly so View Switcher is ALWAYS visible!) -->
+          <div class="flex flex-wrap items-center justify-between sm:justify-end gap-2 w-full sm:w-auto">
             <!-- Type Filters -->
-            <div class="flex items-center p-1 bg-slate-200/60 dark:bg-slate-800/80 rounded-xl border border-slate-300/40 dark:border-slate-700/40 text-xs font-medium">
+            <div class="flex items-center p-1 bg-white rounded-xl border border-slate-200/80 shadow-sm text-xs font-medium">
               <button
                 data-type-filter="all"
                 class="type-filter-btn active-type-filter px-2.5 py-1 rounded-lg transition-all"
@@ -171,40 +168,44 @@
               </button>
             </div>
 
-            <!-- Sort Selector -->
-            <select
-              id="sort-select"
-              class="text-xs font-medium py-1.5 px-2.5 bg-white dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700/80 rounded-xl text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-primary/40"
-            >
-              <option value="newest">Newest first</option>
-              <option value="oldest">Oldest first</option>
-              <option value="title">Title (A–Z)</option>
-            </select>
+            <div class="flex items-center space-x-2">
+              <!-- Sort Selector -->
+              <select
+                id="sort-select"
+                class="text-xs font-medium py-1.5 px-2.5 bg-white border border-slate-200/80 rounded-xl text-slate-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/40"
+              >
+                <option value="newest">Newest first</option>
+                <option value="oldest">Oldest first</option>
+                <option value="title">Title (A–Z)</option>
+              </select>
 
-            <!-- View Layout Switcher (Grid vs List) -->
-            <div class="flex items-center p-1 bg-slate-200/60 dark:bg-slate-800/80 rounded-xl border border-slate-300/40 dark:border-slate-700/40">
-              <button
-                id="view-grid-btn"
-                class="p-1 rounded-lg bg-white dark:bg-slate-700 text-primary dark:text-white shadow-sm transition-all"
-                title="Grid View"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
-              </button>
-              <button
-                id="view-list-btn"
-                class="p-1 rounded-lg text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition-all"
-                title="List View"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
-              </button>
+              <!-- View Layout Switcher (Grid vs List, with Text Label + Icon, ALWAYS VISIBLE) -->
+              <div class="flex items-center p-1 bg-white rounded-xl border border-slate-200/80 shadow-sm text-xs font-medium">
+                <button
+                  id="view-grid-btn"
+                  class="flex items-center space-x-1 px-2.5 py-1 rounded-lg bg-slate-800 text-white font-semibold transition-all"
+                  title="Grid View"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+                  <span>Grid</span>
+                </button>
+                <button
+                  id="view-list-btn"
+                  class="flex items-center space-x-1 px-2.5 py-1 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-all"
+                  title="List View"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+                  <span>List</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>
 
         <!-- Active Search Tag Indicator -->
         <div id="active-tag-filter" class="hidden items-center space-x-2 text-xs">
-          <span class="text-slate-500 dark:text-slate-400">Filtering by tag:</span>
-          <span id="active-tag-badge" class="inline-flex items-center space-x-1.5 px-2.5 py-0.5 rounded-full bg-primary/10 dark:bg-primary/20 text-primary dark:text-blue-300 font-medium border border-primary/20">
+          <span class="text-slate-500">Filtering by tag:</span>
+          <span id="active-tag-badge" class="inline-flex items-center space-x-1.5 px-2.5 py-0.5 rounded-full bg-primary/10 text-primary font-medium border border-primary/20">
             <span id="active-tag-name">#ai</span>
             <button id="clear-tag-btn" class="hover:text-red-500 font-bold ml-1">✕</button>
           </span>
@@ -214,7 +215,7 @@
       <!-- Main Content (Post Cards Grid / List) -->
       <main
         id="post-list"
-        class="flex-1 overflow-y-auto p-4 sm:p-6 pb-32 sm:pb-28 no-scrollbar grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 items-start content-start"
+        class="flex-1 overflow-y-auto p-4 sm:p-6 pb-32 sm:pb-28 no-scrollbar grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 items-stretch content-start w-full"
       >
         <!-- Posts injected by JS -->
       </main>
@@ -250,29 +251,29 @@
           id="add-modal-backdrop"
         ></div>
         <div
-          class="absolute bottom-0 sm:bottom-auto sm:top-1/2 sm:left-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 inset-x-0 sm:inset-x-auto w-full sm:max-w-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl transform transition-transform duration-300 translate-y-full sm:translate-y-0"
+          class="absolute bottom-0 sm:bottom-auto sm:top-1/2 sm:left-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 inset-x-0 sm:inset-x-auto w-full sm:max-w-lg bg-white border border-slate-200 rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl transform transition-transform duration-300 translate-y-full sm:translate-y-0"
           id="add-modal-content"
         >
-          <div class="w-12 h-1.5 bg-slate-300 dark:bg-slate-700 rounded-full mx-auto mb-5 sm:hidden"></div>
+          <div class="w-12 h-1.5 bg-slate-300 rounded-full mx-auto mb-5 sm:hidden"></div>
           
           <!-- Modal Header -->
           <div class="flex items-center justify-between mb-5">
-            <h2 id="add-modal-title" class="text-xl font-bold text-slate-900 dark:text-white">New Idea</h2>
+            <h2 id="add-modal-title" class="text-xl font-bold text-slate-900">New Idea</h2>
             <button
               type="button"
               id="close-add-modal-btn"
-              class="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800"
+              class="p-2 text-slate-400 hover:text-slate-600 rounded-xl hover:bg-slate-100"
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
             </button>
           </div>
 
           <!-- Idea Type Tabs (Link vs Note) -->
-          <div class="flex p-1 bg-slate-100 dark:bg-slate-800 rounded-xl mb-5 border border-slate-200 dark:border-slate-700">
+          <div class="flex p-1 bg-slate-100 rounded-xl mb-5 border border-slate-200">
             <button
               type="button"
               id="tab-link-btn"
-              class="flex-1 py-2 rounded-lg font-medium text-sm transition-all flex items-center justify-center space-x-2 bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm"
+              class="flex-1 py-2 rounded-lg font-medium text-sm transition-all flex items-center justify-center space-x-2 bg-white text-slate-900 shadow-sm"
             >
               <span>🔗</span>
               <span>Link Idea</span>
@@ -280,7 +281,7 @@
             <button
               type="button"
               id="tab-note-btn"
-              class="flex-1 py-2 rounded-lg font-medium text-sm text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all flex items-center justify-center space-x-2"
+              class="flex-1 py-2 rounded-lg font-medium text-sm text-slate-500 hover:text-slate-900 transition-all flex items-center justify-center space-x-2"
             >
               <span>📝</span>
               <span>Note / Text</span>
@@ -294,7 +295,7 @@
 
             <!-- URL input (hidden when type=note) -->
             <div id="url-field-container">
-              <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-1.5 ml-1">
+              <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1.5 ml-1">
                 Link URL <span class="text-accent">*</span>
               </label>
               <div class="relative">
@@ -309,7 +310,7 @@
 
             <!-- Title -->
             <div>
-              <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-1.5 ml-1">
+              <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1.5 ml-1">
                 Title
               </label>
               <input
@@ -322,7 +323,7 @@
 
             <!-- Note / Description -->
             <div>
-              <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-1.5 ml-1">
+              <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1.5 ml-1">
                 Note / Description
               </label>
               <textarea
@@ -335,8 +336,8 @@
 
             <!-- Folder Selector -->
             <div>
-              <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-1.5 ml-1">
-                Folder
+              <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1.5 ml-1">
+                Folder / Category
               </label>
               <div
                 class="flex space-x-2 overflow-x-auto no-scrollbar py-1"
@@ -348,7 +349,7 @@
 
             <!-- Tags Input -->
             <div>
-              <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-1.5 ml-1">
+              <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1.5 ml-1">
                 Tags
               </label>
               <input
@@ -362,8 +363,8 @@
             <!-- Color Accent & Pinning Row -->
             <div class="flex items-center justify-between pt-1">
               <div class="flex items-center space-x-1.5">
-                <span class="text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider mr-1">Color:</span>
-                <button type="button" data-color="default" class="color-swatch-btn w-6 h-6 rounded-full border-2 border-slate-400 bg-slate-200 dark:bg-slate-700 active-swatch"></button>
+                <span class="text-xs font-semibold text-slate-600 uppercase tracking-wider mr-1">Color:</span>
+                <button type="button" data-color="default" class="color-swatch-btn w-6 h-6 rounded-full border-2 border-slate-400 bg-slate-200 active-swatch"></button>
                 <button type="button" data-color="emerald" class="color-swatch-btn w-6 h-6 rounded-full border border-slate-300 bg-emerald-500"></button>
                 <button type="button" data-color="amber" class="color-swatch-btn w-6 h-6 rounded-full border border-slate-300 bg-amber-500"></button>
                 <button type="button" data-color="blue" class="color-swatch-btn w-6 h-6 rounded-full border border-slate-300 bg-blue-500"></button>
@@ -374,7 +375,7 @@
 
               <label class="flex items-center space-x-2 cursor-pointer select-none">
                 <input type="checkbox" id="pin-input" class="w-4 h-4 rounded text-primary focus:ring-primary/40" />
-                <span class="text-sm font-medium text-slate-700 dark:text-slate-300">⭐ Pin to Top</span>
+                <span class="text-sm font-medium text-slate-700">⭐ Pin to Top</span>
               </label>
             </div>
 
@@ -393,40 +394,40 @@
       <!-- Collaboration Hub Modal -->
       <div id="collab-modal" class="fixed inset-0 z-[60] hidden flex items-center justify-center pointer-events-none">
         <div class="absolute inset-0 bg-black/40 backdrop-blur-sm pointer-events-auto" id="collab-modal-backdrop"></div>
-        <div class="w-full max-w-md bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-2xl relative pointer-events-auto animate-pop-in mx-4">
+        <div class="w-full max-w-md bg-white border border-slate-200 rounded-3xl p-6 shadow-2xl relative pointer-events-auto animate-pop-in mx-4">
           <!-- Modal Header -->
           <div class="flex items-center justify-between mb-5">
             <div class="flex items-center space-x-3">
-              <div class="w-10 h-10 rounded-2xl bg-blue-100 dark:bg-blue-900/60 text-blue-600 dark:text-blue-300 flex items-center justify-center font-bold">
+              <div class="w-10 h-10 rounded-2xl bg-slate-100 text-slate-800 border border-slate-200 flex items-center justify-center font-bold shadow-sm">
                 👥
               </div>
               <div>
-                <h3 class="text-lg font-bold text-slate-900 dark:text-white">Collaboration Hub</h3>
-                <p class="text-xs text-slate-500 dark:text-slate-400">Use IdeaHub together in real-time or share boards</p>
+                <h3 class="text-lg font-bold text-slate-900">Collaboration Hub</h3>
+                <p class="text-xs text-slate-500">Use IdeaHub together in real-time or share boards</p>
               </div>
             </div>
             <button
               type="button"
               id="close-collab-modal-btn"
-              class="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800"
+              class="p-2 text-slate-400 hover:text-slate-600 rounded-xl hover:bg-slate-100"
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
             </button>
           </div>
 
           <!-- Tabs -->
-          <div class="flex p-1 bg-slate-100 dark:bg-slate-800 rounded-xl mb-5 border border-slate-200 dark:border-slate-700">
+          <div class="flex p-1 bg-slate-100 rounded-xl mb-5 border border-slate-200">
             <button
               type="button"
               id="collab-tab-room-btn"
-              class="flex-1 py-2 rounded-lg font-medium text-sm transition-all bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm"
+              class="flex-1 py-2 rounded-lg font-medium text-sm transition-all bg-white text-slate-900 shadow-sm"
             >
               🟢 Live Room
             </button>
             <button
               type="button"
               id="collab-tab-share-btn"
-              class="flex-1 py-2 rounded-lg font-medium text-sm text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all"
+              class="flex-1 py-2 rounded-lg font-medium text-sm text-slate-500 hover:text-slate-900 transition-all"
             >
               📤 Share & Backup
             </button>
@@ -436,9 +437,9 @@
           <div id="collab-tab-room" class="space-y-4">
             <!-- Offline View -->
             <div id="collab-offline-view" class="space-y-4">
-              <div class="p-4 bg-slate-50 dark:bg-slate-800/60 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 text-center">
-                <h4 class="font-semibold text-slate-800 dark:text-slate-100 mb-1">Create a Live Collaboration Room</h4>
-                <p class="text-xs text-slate-500 dark:text-slate-400 mb-4">
+              <div class="p-4 bg-slate-50 rounded-2xl border border-slate-200/80 text-center">
+                <h4 class="font-semibold text-slate-800 mb-1">Create a Live Collaboration Room</h4>
+                <p class="text-xs text-slate-500 mb-4">
                   Start a zero-server peer-to-peer room. Anyone with the room code can connect and sync ideas in real-time.
                 </p>
                 <button
@@ -451,9 +452,9 @@
               </div>
 
               <div class="relative flex py-1 items-center">
-                <div class="flex-grow border-t border-slate-200 dark:border-slate-800"></div>
+                <div class="flex-grow border-t border-slate-200"></div>
                 <span class="flex-shrink mx-4 text-xs font-semibold uppercase text-slate-400">or join existing</span>
-                <div class="flex-grow border-t border-slate-200 dark:border-slate-800"></div>
+                <div class="flex-grow border-t border-slate-200"></div>
               </div>
 
               <div class="flex space-x-2">
@@ -466,7 +467,7 @@
                 <button
                   type="button"
                   id="join-room-btn"
-                  class="px-5 py-3 rounded-xl bg-slate-800 dark:bg-slate-700 hover:bg-slate-900 dark:hover:bg-slate-600 text-white font-semibold transition-all whitespace-nowrap"
+                  class="px-5 py-3 rounded-xl bg-slate-800 hover:bg-slate-900 text-white font-semibold transition-all whitespace-nowrap"
                 >
                   Join Room
                 </button>
@@ -475,29 +476,29 @@
 
             <!-- Online / Active Room View -->
             <div id="collab-online-view" class="hidden space-y-4">
-              <div class="p-4 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/80 rounded-2xl text-center">
-                <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-xs font-semibold mb-3">
+              <div class="p-4 bg-emerald-50 border border-emerald-200 rounded-2xl text-center">
+                <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-600 text-xs font-semibold mb-3">
                   <span class="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
                   <span>LIVE ROOM CONNECTED</span>
                 </div>
-                <div class="text-2xl font-mono font-bold tracking-widest text-slate-900 dark:text-white mb-1" id="room-code-display">
+                <div class="text-2xl font-mono font-bold tracking-widest text-slate-900 mb-1" id="room-code-display">
                   HUB-0000
                 </div>
-                <p class="text-xs text-slate-500 dark:text-slate-400 mb-4">
+                <p class="text-xs text-slate-500 mb-4">
                   Share this code with teammates to collaborate in real-time.
                 </p>
                 <div class="flex space-x-2">
                   <button
                     type="button"
                     id="copy-invite-btn"
-                    class="flex-1 py-2 px-3 rounded-xl bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-sm font-semibold text-slate-700 dark:text-slate-200 shadow-sm transition-all"
+                    class="flex-1 py-2 px-3 rounded-xl bg-white hover:bg-slate-100 border border-slate-200 text-sm font-semibold text-slate-700 shadow-sm transition-all"
                   >
                     📋 Copy Invite Link
                   </button>
                   <button
                     type="button"
                     id="leave-room-btn"
-                    class="py-2 px-4 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-600 dark:text-red-400 font-semibold text-sm transition-all"
+                    class="py-2 px-4 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-600 font-semibold text-sm transition-all"
                   >
                     Disconnect
                   </button>
@@ -506,10 +507,10 @@
 
               <!-- Connected Peers List -->
               <div>
-                <h5 class="text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 mb-2">
+                <h5 class="text-xs font-semibold uppercase text-slate-500 mb-2">
                   Connected Peers (<span id="peer-count-text">1</span>)
                 </h5>
-                <div id="peer-list-container" class="p-3 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200/80 dark:border-slate-700/80 space-y-2 text-sm text-slate-700 dark:text-slate-300">
+                <div id="peer-list-container" class="p-3 bg-slate-50 rounded-xl border border-slate-200/80 space-y-2 text-sm text-slate-700">
                   <div class="flex items-center space-x-2">
                     <span class="h-2 w-2 rounded-full bg-emerald-500"></span>
                     <span class="font-medium">You (Host)</span>
@@ -521,9 +522,9 @@
 
           <!-- Tab 2: Share & Backup -->
           <div id="collab-tab-share" class="hidden space-y-4">
-            <div class="p-4 bg-slate-50 dark:bg-slate-800/60 rounded-2xl border border-slate-200/80 dark:border-slate-700/80">
-              <h4 class="font-semibold text-slate-800 dark:text-slate-100 mb-1">Share Entire Board via Link</h4>
-              <p class="text-xs text-slate-500 dark:text-slate-400 mb-3">
+            <div class="p-4 bg-slate-50 rounded-2xl border border-slate-200/80">
+              <h4 class="font-semibold text-slate-800 mb-1">Share Entire Board via Link</h4>
+              <p class="text-xs text-slate-500 mb-3">
                 Generates a portable URL link containing all your current ideas that anyone can open and import.
               </p>
               <button
@@ -539,20 +540,20 @@
               <button
                 type="button"
                 id="export-json-btn"
-                class="p-4 bg-slate-50 dark:bg-slate-800/60 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200/80 dark:border-slate-700/80 rounded-2xl text-left transition-all"
+                class="p-4 bg-slate-50 hover:bg-slate-100 border border-slate-200/80 rounded-2xl text-left transition-all"
               >
                 <div class="text-xl mb-1">📥</div>
-                <div class="font-semibold text-sm text-slate-800 dark:text-slate-200">Export JSON</div>
-                <div class="text-[11px] text-slate-500 dark:text-slate-400">Download backup</div>
+                <div class="font-semibold text-sm text-slate-800">Export JSON</div>
+                <div class="text-[11px] text-slate-500">Download backup</div>
               </button>
               <button
                 type="button"
                 id="import-json-btn"
-                class="p-4 bg-slate-50 dark:bg-slate-800/60 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200/80 dark:border-slate-700/80 rounded-2xl text-left transition-all"
+                class="p-4 bg-slate-50 hover:bg-slate-100 border border-slate-200/80 rounded-2xl text-left transition-all"
               >
                 <div class="text-xl mb-1">📤</div>
-                <div class="font-semibold text-sm text-slate-800 dark:text-slate-200">Import JSON</div>
-                <div class="text-[11px] text-slate-500 dark:text-slate-400">Restore or merge board</div>
+                <div class="font-semibold text-sm text-slate-800">Import JSON</div>
+                <div class="text-[11px] text-slate-500">Restore or merge board</div>
               </button>
               <input type="file" id="import-file-input" accept=".json" class="hidden" />
             </div>
@@ -563,19 +564,19 @@
       <!-- Share Preview / Import Modal -->
       <div id="share-preview-modal" class="fixed inset-0 z-[70] hidden flex items-center justify-center pointer-events-none">
         <div class="absolute inset-0 bg-black/40 backdrop-blur-sm pointer-events-auto" id="share-preview-backdrop"></div>
-        <div class="w-full max-w-sm bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-2xl relative pointer-events-auto animate-pop-in mx-4 text-center">
-          <div class="w-14 h-14 rounded-2xl bg-blue-100 dark:bg-blue-900/60 text-blue-600 dark:text-blue-300 flex items-center justify-center font-bold text-2xl mx-auto mb-4">
+        <div class="w-full max-w-sm bg-white border border-slate-200 rounded-3xl p-6 shadow-2xl relative pointer-events-auto animate-pop-in mx-4 text-center">
+          <div class="w-14 h-14 rounded-2xl bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-2xl mx-auto mb-4">
             ✨
           </div>
-          <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-2" id="share-preview-title">Shared Idea Board</h3>
-          <p class="text-sm text-slate-500 dark:text-slate-400 mb-6" id="share-preview-desc">
+          <h3 class="text-xl font-bold text-slate-900 mb-2" id="share-preview-title">Shared Idea Board</h3>
+          <p class="text-sm text-slate-500 mb-6" id="share-preview-desc">
             You received a shared collection of ideas. Would you like to import them into your IdeaHub?
           </p>
           <div class="flex space-x-3">
             <button
               type="button"
               id="share-preview-cancel-btn"
-              class="flex-1 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 font-semibold text-slate-700 dark:text-slate-200 transition-colors"
+              class="flex-1 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 font-semibold text-slate-700 transition-colors"
             >
               Cancel
             </button>
@@ -590,30 +591,31 @@
         </div>
       </div>
 
-      <!-- New Folder Modal -->
+      <!-- New Category / Folder Modal -->
       <div id="new-folder-modal" class="fixed inset-0 z-[60] hidden flex items-center justify-center bg-black/30 backdrop-blur-sm">
-        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 w-[90%] max-w-sm mx-auto animate-pop-in shadow-2xl">
-          <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-3">Create Folder</h3>
-          <input type="text" id="new-folder-input" class="glass-input mb-4" placeholder="Folder Name (e.g. Projects)" />
+        <div class="bg-white border border-slate-200 rounded-3xl p-6 w-[90%] max-w-sm mx-auto animate-pop-in shadow-2xl">
+          <h3 class="text-lg font-bold text-slate-900 mb-1">Create Folder</h3>
+          <p class="text-xs text-slate-500 mb-4">Organize your ideas into folders.</p>
+          <input type="text" id="new-folder-input" class="glass-input mb-4" placeholder="Folder Name (e.g. Projects, Inspiration)" />
           <div class="flex justify-end space-x-2">
-            <button type="button" id="cancel-folder-btn" class="px-4 py-2 text-slate-500 hover:text-slate-700 dark:hover:text-slate-200 font-medium rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">Cancel</button>
+            <button type="button" id="cancel-folder-btn" class="px-4 py-2 text-slate-500 hover:text-slate-700 font-medium rounded-lg hover:bg-slate-100 transition-colors">Cancel</button>
             <button type="button" id="confirm-folder-btn" class="glass-button">Create</button>
           </div>
         </div>
       </div>
 
       <!-- Settings Modal -->
-      <div id="settings-modal" class="fixed inset-0 z-50 hidden flex flex-col bg-white/95 dark:bg-slate-900/95 backdrop-blur-md">
-        <div class="flex-none p-4 flex justify-between items-center border-b border-slate-200/60 dark:border-slate-800">
-          <h2 class="text-xl font-bold text-slate-800 dark:text-white">Settings</h2>
-          <button id="close-settings-btn" class="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full text-slate-500">
+      <div id="settings-modal" class="fixed inset-0 z-50 hidden flex flex-col bg-white/95 backdrop-blur-md">
+        <div class="flex-none p-4 flex justify-between items-center border-b border-slate-200/60">
+          <h2 class="text-xl font-bold text-slate-800">Settings</h2>
+          <button id="close-settings-btn" class="p-2 hover:bg-slate-100 rounded-full text-slate-500">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
           </button>
         </div>
         <div class="flex-1 overflow-y-auto p-4 sm:p-6 max-w-2xl mx-auto w-full animate-fade-in">
           <div class="mb-6">
             <div class="flex justify-between items-center mb-4">
-              <h3 class="text-lg font-semibold text-slate-700 dark:text-slate-200">Folders</h3>
+              <h3 class="text-lg font-semibold text-slate-700">Folders</h3>
               <button id="settings-add-folder-btn" class="text-sm text-primary font-medium hover:underline">+ New Folder</button>
             </div>
             <div id="settings-folder-list" class="space-y-2">
@@ -621,27 +623,16 @@
             </div>
           </div>
           <div>
-            <h3 class="text-lg font-semibold text-slate-700 dark:text-slate-200 mb-4">App Info & Storage</h3>
+            <h3 class="text-lg font-semibold text-slate-700 mb-4">App Info</h3>
             <div class="space-y-2">
-              <div id="settings-install-row" class="flex items-center justify-between p-3.5 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200/60 dark:border-slate-700/60 hidden">
+              <div class="flex items-center justify-between p-3.5 bg-slate-50 rounded-xl border border-slate-200/60">
                 <div class="flex items-center space-x-3">
-                  <div class="w-9 h-9 rounded-full bg-white dark:bg-slate-700 flex items-center justify-center text-slate-500 dark:text-slate-300 shadow-sm">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
-                  </div>
-                  <span class="font-medium text-slate-700 dark:text-slate-200">Install App</span>
-                </div>
-                <button id="settings-install-btn" class="px-3.5 py-1.5 bg-primary text-white text-sm font-medium rounded-lg shadow-sm hover:bg-blue-600 transition-colors">
-                  Install
-                </button>
-              </div>
-              <div class="flex items-center justify-between p-3.5 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200/60 dark:border-slate-700/60">
-                <div class="flex items-center space-x-3">
-                  <div class="w-9 h-9 rounded-full bg-white dark:bg-slate-700 flex items-center justify-center text-slate-500 dark:text-slate-300 shadow-sm">
+                  <div class="w-9 h-9 rounded-full bg-white flex items-center justify-center text-slate-500 shadow-sm">
                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
                   </div>
-                  <span class="font-medium text-slate-700 dark:text-slate-200">Version</span>
+                  <span class="font-medium text-slate-700">Version</span>
                 </div>
-                <span class="text-sm text-slate-500 dark:text-slate-400 font-medium">v0.2.0 (Collab Edition)</span>
+                <span class="text-sm text-slate-500 font-medium">v0.2.1 (Clean Edition)</span>
               </div>
             </div>
           </div>
@@ -651,31 +642,15 @@
       <!-- Delete Confirmation Modal -->
       <div id="delete-confirm-modal" class="fixed inset-0 z-[70] hidden flex items-center justify-center pointer-events-none">
         <div class="absolute inset-0 bg-black/40 backdrop-blur-sm pointer-events-auto" id="delete-modal-backdrop"></div>
-        <div class="w-[90%] sm:w-[80%] max-w-sm mx-auto animate-pop-in relative bg-white dark:bg-slate-900 shadow-2xl border border-slate-200 dark:border-slate-800 rounded-3xl p-6 pointer-events-auto">
-          <div class="w-12 h-12 rounded-full bg-red-100 dark:bg-red-900/50 flex items-center justify-center mx-auto mb-4 text-red-500">
+        <div class="w-[90%] sm:w-[80%] max-w-sm mx-auto animate-pop-in relative bg-white shadow-2xl border border-slate-200 rounded-3xl p-6 pointer-events-auto">
+          <div class="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-4 text-red-500">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path></svg>
           </div>
-          <h3 id="delete-modal-title" class="text-lg font-bold text-slate-800 dark:text-white text-center mb-2">Delete Item?</h3>
-          <p id="delete-modal-desc" class="text-slate-500 dark:text-slate-400 text-center text-sm mb-6">This action cannot be undone.</p>
+          <h3 id="delete-modal-title" class="text-lg font-bold text-slate-800 text-center mb-2">Delete Item?</h3>
+          <p id="delete-modal-desc" class="text-slate-500 text-center text-sm mb-6">This action cannot be undone.</p>
           <div class="flex space-x-3">
-            <button type="button" id="cancel-delete-btn" class="flex-1 py-2.5 text-slate-600 dark:text-slate-300 font-medium rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">Cancel</button>
+            <button type="button" id="cancel-delete-btn" class="flex-1 py-2.5 text-slate-600 font-medium rounded-xl hover:bg-slate-100 transition-colors">Cancel</button>
             <button type="button" id="confirm-delete-btn" class="flex-1 py-2.5 bg-red-500 text-white font-medium rounded-xl shadow-lg shadow-red-500/30 hover:bg-red-600 transition-all active:scale-95">Delete</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Install App Modal -->
-      <div id="install-modal" class="fixed inset-0 z-[80] hidden flex items-center justify-center pointer-events-none">
-        <div class="absolute inset-0 bg-black/40 backdrop-blur-sm pointer-events-auto" id="install-modal-backdrop"></div>
-        <div class="w-[90%] max-w-sm mx-auto animate-pop-in relative bg-white dark:bg-slate-900 shadow-2xl rounded-3xl p-6 pointer-events-auto text-center border border-slate-200 dark:border-slate-800">
-          <div class="w-16 h-16 bg-blue-100 dark:bg-blue-900/60 rounded-2xl mx-auto mb-4 flex items-center justify-center shadow-sm">
-            <img src="/icon.svg" alt="App Icon" class="w-10 h-10">
-          </div>
-          <h3 class="text-xl font-bold text-slate-800 dark:text-white mb-2">Install IdeaHub</h3>
-          <p class="text-slate-500 dark:text-slate-400 text-sm mb-6">Install this app on your device for quick access and offline use.</p>
-          <div class="flex space-x-3">
-            <button type="button" id="install-dismiss-btn" class="flex-1 py-2.5 text-slate-600 dark:text-slate-300 font-medium rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">Later</button>
-            <button type="button" id="install-accept-btn" class="flex-1 py-2.5 bg-primary text-white font-medium rounded-xl shadow-lg shadow-blue-500/30 hover:bg-blue-600 transition-transform active:scale-95">Install</button>
           </div>
         </div>
       </div>
@@ -683,14 +658,14 @@
       <!-- Post View Modal -->
       <div
         id="view-modal"
-        class="fixed inset-0 z-50 hidden flex flex-col bg-white dark:bg-slate-900"
+        class="fixed inset-0 z-50 hidden flex flex-col bg-white"
       >
         <div
-          class="flex-none p-4 flex justify-between items-center border-b border-slate-200/60 dark:border-slate-800 bg-white dark:bg-slate-900"
+          class="flex-none p-4 flex justify-between items-center border-b border-slate-200/60 bg-white"
         >
           <button
             id="close-view-btn"
-            class="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full text-slate-600 dark:text-slate-300"
+            class="p-2 hover:bg-slate-100 rounded-full text-slate-600"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -707,13 +682,13 @@
               <line x1="6" y1="6" x2="18" y2="18"></line>
             </svg>
           </button>
-          <h3 id="view-modal-title" class="font-semibold truncate max-w-sm text-slate-800 dark:text-white">
+          <h3 id="view-modal-title" class="font-semibold truncate max-w-sm text-slate-800">
             Link View
           </h3>
           <div class="flex items-center space-x-2">
             <button
               id="edit-post-btn"
-              class="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full text-slate-600 dark:text-slate-300"
+              class="p-2 hover:bg-slate-100 rounded-full text-slate-600"
               title="Edit"
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
@@ -722,7 +697,7 @@
               id="external-link-btn"
               href="#"
               target="_blank"
-              class="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full text-primary dark:text-blue-400"
+              class="p-2 hover:bg-slate-100 rounded-full text-primary"
               title="Open External"
             >
               <svg
@@ -745,7 +720,7 @@
             </a>
           </div>
         </div>
-        <div class="flex-1 relative bg-slate-50 dark:bg-slate-950">
+        <div class="flex-1 relative bg-slate-50 overflow-y-auto">
           <iframe
             id="view-frame"
             class="absolute inset-0 w-full h-full border-0"
@@ -753,18 +728,51 @@
           ></iframe>
           <div
             id="iframe-fallback"
-            class="hidden absolute inset-0 flex flex-col items-center justify-center p-6 text-center"
+            class="hidden absolute inset-0 overflow-y-auto p-6 sm:p-10 max-w-3xl mx-auto bg-white sm:my-6 sm:rounded-2xl sm:border sm:border-slate-200/80 shadow-sm flex flex-col justify-between"
           >
-            <p class="text-slate-500 dark:text-slate-400 mb-4">
-              This website does not allow embedding inside frames.
-            </p>
-            <a
-              id="fallback-link"
-              href="#"
-              target="_blank"
-              class="glass-button bg-primary text-white"
-              >Open in Browser</a
-            >
+            <div>
+              <div id="fallback-meta" class="flex flex-wrap items-center gap-2 mb-4 text-xs font-medium text-slate-500"></div>
+              <div id="fallback-domain-badge" class="inline-flex items-center space-x-2 px-3 py-1.5 rounded-xl bg-slate-100 text-slate-700 font-medium text-sm mb-4"></div>
+              <h2 id="fallback-title" class="text-xl sm:text-2xl font-bold text-slate-900 mb-4 leading-snug"></h2>
+              <div id="fallback-note" class="text-slate-700 text-base leading-relaxed whitespace-pre-line select-text mb-6"></div>
+              <div class="p-4 rounded-xl bg-amber-50 border border-amber-200/80 text-amber-800 text-xs sm:text-sm mb-6 flex items-start space-x-2.5">
+                <span class="text-base flex-shrink-0">🔒</span>
+                <div>
+                  <span class="font-semibold block mb-0.5">Protected Website Policy</span>
+                  <span id="fallback-policy-msg">This website prohibits direct embedding inside other web apps due to browser security rules (X-Frame-Options).</span>
+                </div>
+              </div>
+            </div>
+            <div class="flex flex-wrap items-center gap-3 pt-4 border-t border-slate-200/70">
+              <a
+                id="fallback-link"
+                href="#"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="inline-flex items-center justify-center space-x-2 px-5 py-3 rounded-xl bg-primary hover:bg-primary/90 text-white font-medium text-sm transition-all shadow-sm hover:shadow"
+              >
+                <span>Open Website in New Tab</span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+              </a>
+              <button
+                type="button"
+                id="fallback-copy-btn"
+                class="inline-flex items-center justify-center space-x-2 px-4 py-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium text-sm transition-all"
+              >
+                <span>Copy URL</span>
+              </button>
+            </div>
+          </div>
+          <div
+            id="note-view-container"
+            class="hidden absolute inset-0 overflow-y-auto p-6 sm:p-10 max-w-3xl mx-auto bg-white sm:my-6 sm:rounded-2xl sm:border sm:border-slate-200/80 shadow-sm"
+          >
+            <div id="note-view-meta" class="flex flex-wrap items-center gap-2 mb-4 text-xs font-medium text-slate-500">
+            </div>
+            <div
+              id="note-view-body"
+              class="text-slate-800 text-base sm:text-lg leading-relaxed whitespace-pre-line select-text"
+            ></div>
           </div>
         </div>
         <div class="absolute bottom-6 left-0 right-0 flex justify-center pointer-events-none z-10">
