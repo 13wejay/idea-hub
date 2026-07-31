@@ -1,0 +1,52 @@
+{
+  "name": "IdeaHub",
+  "short_name": "IdeaHub",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#3b82f6",
+  "description": "Save and organize your ideas and links.",
+  "categories": ["productivity", "utilities"],
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshot/IdeaHub_input.png",
+      "sizes": "391x869",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "IdeaHub Input"
+    },
+    {
+      "src": "/screenshot/IdeaHub_main.png",
+      "sizes": "391x869",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "IdeaHub Home"
+    },
+    {
+      "src": "/screenshot/IdeaHub_setting.png",
+      "sizes": "391x869",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "IdeaHub Settings"
+    }
+  ],
+  "share_target": {
+    "action": "/",
+    "method": "GET",
+    "enctype": "application/x-www-form-urlencoded",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url"
+    }
+  }
+}

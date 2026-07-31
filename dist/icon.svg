@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Rounded Square Background -->
+  <rect x="0" y="0" width="512" height="512" rx="120" ry="120" fill="#3b82f6"/>
+  
+  <!-- Lightbulb Icon -->
+  <g fill="white" transform="translate(128, 96) scale(0.5)">
+    <path d="M256 0c-88.4 0-160 71.6-160 160 0 60.6 33.7 113.8 83.1 140.7l16.1 8.8v66.5c0 17.7 14.3 32 32 32h57.6c17.7 0 32-14.3 32-32v-66.5l16.1-8.8C382.3 273.8 416 220.6 416 160c0-88.4-71.6-160-160-160zM224 448h64v32h-64v-32z"/>
+  </g>
+  <!-- Filament details/Base lines (Simplified) -->
+  <rect x="226" y="320" width="60" height="12" rx="2" fill="white" opacity="0.9"/>
+  <rect x="226" y="340" width="60" height="12" rx="2" fill="white" opacity="0.9"/>
+</svg>

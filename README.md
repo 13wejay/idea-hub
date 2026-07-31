@@ -1,58 +1,68 @@
-# Idea Hub
+# IdeaHub — Clean & Collaborative Idea Manager
 
-Idea Hub is a personal knowledge management web application designed to help you capture, organize, and revisit your ideas, links, and inspiration. Built with a focus on simplicity and speed, it features a clean, responsive interface with intuitive gesture controls.
+IdeaHub is a modern, collaborative knowledge management web application designed to help you capture, organize, search, and collaborate on your ideas, notes, and links in real-time. Built with clean glassmorphism aesthetics, responsive layouts, and zero-server peer-to-peer collaboration, IdeaHub makes it effortless to work alone or together with teammates.
 
-## Features
+## ✨ What's New in Collab Edition
 
-- **Organize with Folders**: Group your ideas into custom folders or use built-in categories like "Inspiration" and "Read Later".
-- **Swipe Gestures**: Quickly manage your items with mobile-friendly swipe actions—swipe left to delete, swipe right to edit.
-- **Auto-Title Fetching**: Automatically fetches titles for your links to save you time.
-- **Local-First**: Your data is stored locally in your browser, ensuring privacy and speed.
-- **Responsive Design**: Works seamlessly on desktop and mobile devices.
-- **Bulk Actions**: Select multiple items to delete or move them in bulk.
+- **👥 Real-Time Collaboration Rooms (Zero-Server)**: Create a live room with a 4-character code (e.g., `HUB-8392`). Teammates can connect instantly via PeerJS/WebRTC to sync ideas, pins, and notes in real-time without needing a centralized backend.
+- **🔗 Shareable Board Links (`#share=...`)**: Pack an entire collection of ideas into a portable URL link that anyone can open to preview and import into their IdeaHub.
+- **🎨 Clean Glassmorphism & Theme Mode**: Stunning Outfit typography, sleek dark and light themes, color accents for cards, and smooth micro-animations.
+- **🔍 Instant Search & Multi-Criteria Filtering**: Filter ideas by type (All, ⭐ Pinned, 🔗 Links, 📝 Notes), filter by `#tags`, or search across titles, URLs, and notes.
+- **📱 Responsive Layout & View Switcher**: Switch effortlessly between a multi-column **Grid View** and a compact **List View**.
+- **📦 Board JSON Export & Import**: Download your entire board as a backup file (`ideahub-backup.json`) or import JSON files to restore or merge ideas.
+- **👉 Touch Swipe Gestures**: Swipe left on any card to delete, swipe right to edit on touchscreen devices.
 
-## Technologies Used
+## 🚀 Features at a Glance
 
-- **Vite**: Next Generation Frontend Tooling for fast development.
-- **Vanilla JavaScript**: Lightweight and fast performance without heavy framework overhead.
-- **Tailwind CSS**: Utility-first CSS framework for rapid and beautiful UI design.
+1. **Rich Idea Schema**: Save both Link ideas and text Notes with custom `#tags`, folder categorization, color swatches, and top-pinning.
+2. **Auto-Title Fetching**: Automatically fetches webpage titles when you paste a link URL.
+3. **Cross-Tab Sync**: Uses `BroadcastChannel` so multiple IdeaHub tabs stay instantly synchronized on your device.
+4. **PWA & Offline Ready**: Works offline with local-first storage and includes Progressive Web App (PWA) installation support.
 
-## Getting Started
+## 🛠️ Technologies Used
+
+- **Vite**: Ultra-fast frontend development and building.
+- **Vanilla JavaScript**: High-performance reactive state management (`store.js`), DOM rendering (`ui.js`), and peer-to-peer sync (`collab.js`).
+- **PeerJS**: WebRTC wrapper for zero-server real-time data channels.
+- **Tailwind CSS**: Modern design system and glassmorphism styling.
+
+## 🏁 Getting Started
 
 ### Prerequisites
 
-- Node.js installed on your machine.
+- Node.js (v18+ recommended) installed on your machine.
 
-### Installation
+### Installation & Development
 
-1.  Clone the repository:
+1. Clone the repository:
 
-    ```bash
-    git clone https://github.com/yourusername/idea-hub.git
-    cd idea-hub
-    ```
+   ```bash
+   git clone https://github.com/yourusername/idea-hub.git
+   cd idea-hub
+   ```
 
-2.  Install dependencies:
+2. Install dependencies:
 
-    ```bash
-    npm install
-    ```
+   ```bash
+   npm install
+   ```
 
-3.  Start the development server:
+3. Start the development server:
 
-    ```bash
-    npm run dev
-    ```
+   ```bash
+   npm run dev
+   ```
 
-4.  Open your browser and navigate to `http://localhost:5173` (or the port shown in your terminal).
+4. Open your browser at `http://localhost:5173`.
 
-## Usage
+## 🤝 How to Collaborate in Real-Time
 
-- **Add an Idea**: Click the "+" button to add a new link or note.
-- **Edit**: Swipe right on an item or click the edit icon to modify it.
-- **Delete**: Swipe left on an item or use the bulk selection tool to remove items.
-- **Settings**: Manage your folders and preferences in the settings menu.
+1. Click the **Collaborate** button in the top-right header.
+2. In the **Live Room** tab, click **✨ Create New Room**.
+3. You will receive a room code (e.g., `HUB-4289`).
+4. Share the code or copy the direct invite link and send it to your teammate!
+5. When your teammate enters the code and clicks **Join Room**, any changes made by either person are broadcasted in real-time.
 
-## License
+## 📄 License
 
 This project is open source and available under the [MIT License](LICENSE).

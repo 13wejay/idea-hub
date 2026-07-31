@@ -1,12 +1,14 @@
 import { store } from "./store.js";
 import { ui } from "./ui.js";
+import { collab } from "./collab.js";
 
 document.addEventListener("DOMContentLoaded", () => {
   store.init();
+  collab.init();
   ui.init();
 
   // Register Service Worker
-  if ("serviceWorker" in navigator) {
+  if ("serviceWorker" in navigator && import.meta.env?.PROD) {
     window.addEventListener("load", () => {
       navigator.serviceWorker
         .register("/sw.js")
@@ -22,39 +24,37 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Check for Share Target data
+  // Check for Share Target data (PWA share from mobile OS)
   const urlParams = new URLSearchParams(window.location.search);
   const title = urlParams.get("title");
   const text = urlParams.get("text");
   const url = urlParams.get("url");
 
   if (title || text || url) {
-    // Simple heuristic to find the URL in the text if 'url' param is empty (common in Android shares)
     let targetUrl = url;
     let targetTitle = title;
+    let targetNote = text;
 
     if (!targetUrl && text) {
       const urlMatch = text.match(/(https?:\/\/[^\s]+)/);
       if (urlMatch) {
         targetUrl = urlMatch[1];
-        // Remove URL from text to get title/note
         const note = text.replace(targetUrl, "").trim();
-        // If title is empty, use the note
         if (!targetTitle && note) {
           targetTitle = note;
         }
       }
     }
 
-    if (targetUrl) {
+    if (targetUrl || targetTitle || targetNote) {
       ui.openAddModal();
-      // Pre-fill
       const linkInput = document.getElementById("link-input");
       const titleInput = document.getElementById("title-input");
-      if (linkInput) linkInput.value = targetUrl;
+      const noteInput = document.getElementById("note-input");
+      if (linkInput && targetUrl) linkInput.value = targetUrl;
       if (titleInput && targetTitle) titleInput.value = targetTitle;
+      if (noteInput && targetNote && targetNote !== targetTitle) noteInput.value = targetNote;
 
-      // Clean URL
       window.history.replaceState({}, document.title, "/");
     }
   }
